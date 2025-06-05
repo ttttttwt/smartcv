@@ -1,0 +1,1344 @@
+{% extends "base.html" %} {% block title %}{{ 'Chỉnh sửa CV' if cv else 'Tạo CV
+mới' }} - Smart CV{% endblock %} {% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <!-- Header Section -->
+  <div class="bg-white/80 backdrop-blur-sm border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            {{ 'Chỉnh sửa CV' if cv else 'Tạo CV mới' }}
+          </h1>
+          <p class="text-lg text-gray-600">
+            Điền thông tin để tạo CV chuyên nghiệp và nổi bật
+          </p>
+        </div>
+        <a
+          href="{{ url_for('cv.cv_list') }}"
+          class="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-200"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <form
+      id="cvForm"
+      action="{{ url_for('cv.update_cv_form', cv_id=cv.id) if cv else url_for('cv.save_cv_form') }}"
+      method="POST"
+      class="space-y-8"
+    >
+      <!-- Progress Section -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Tiến độ hoàn thành</h2>
+            <p class="text-sm text-gray-600">
+              Hoàn thiện thông tin để tạo CV chất lượng
+            </p>
+          </div>
+          <div class="text-right">
+            <span class="text-3xl font-bold text-blue-600" id="progressText"
+              >25%</span
+            >
+            <p class="text-sm text-gray-500">Đã hoàn thành</p>
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div
+            class="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500 ease-out"
+            style="width: 25%"
+            id="progressBar"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div
+        class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
+      >
+        <div class="border-b border-gray-100">
+          <nav class="flex space-x-8 px-8">
+            <button
+              type="button"
+              class="tab-btn active py-6 border-b-3 border-blue-600 font-semibold text-blue-600 transition-all duration-200"
+              data-tab="personal"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center"
+                >
+                  <i class="fas fa-user text-blue-600 text-sm"></i>
+                </div>
+                <span>Thông tin cá nhân</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              class="tab-btn py-6 border-b-3 border-transparent font-semibold text-gray-500 hover:text-gray-700 transition-all duration-200"
+              data-tab="education"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center"
+                >
+                  <i class="fas fa-graduation-cap text-gray-500 text-sm"></i>
+                </div>
+                <span>Học vấn</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              class="tab-btn py-6 border-b-3 border-transparent font-semibold text-gray-500 hover:text-gray-700 transition-all duration-200"
+              data-tab="experience"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center"
+                >
+                  <i class="fas fa-briefcase text-gray-500 text-sm"></i>
+                </div>
+                <span>Kinh nghiệm</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              class="tab-btn py-6 border-b-3 border-transparent font-semibold text-gray-500 hover:text-gray-700 transition-all duration-200"
+              data-tab="skills"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center"
+                >
+                  <i class="fas fa-cogs text-gray-500 text-sm"></i>
+                </div>
+                <span>Kỹ năng</span>
+              </div>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-8">
+          <!-- Personal Information Tab -->
+          <div id="personal-tab" class="tab-content">
+            <div class="space-y-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">
+                  Thông tin cá nhân
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div class="space-y-6">
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Họ và tên *
+                      </label>
+                      <input
+                        type="text"
+                        name="full_name"
+                        value="{{ cv.full_name if cv else 'Nguyễn Văn A' }}"
+                        class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg"
+                        placeholder="VD: Nguyễn Văn A"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Vị trí ứng tuyển *
+                      </label>
+                      <input
+                        type="text"
+                        name="position"
+                        value="{{ cv.position if cv else 'Frontend Developer' }}"
+                        class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg"
+                        placeholder="VD: Frontend Developer"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value="{{ cv.email if cv else 'nguyenvana@email.com' }}"
+                        class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg"
+                        placeholder="VD: example@email.com"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="space-y-6">
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Số điện thoại *
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value="{{ cv.phone if cv else '0987654321' }}"
+                        class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg"
+                        placeholder="VD: 0987654321"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Địa chỉ
+                      </label>
+                      <input
+                        type="text"
+                        name="address"
+                        value="{{ cv.address if cv else 'Quận 1, TP.HCM' }}"
+                        class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg"
+                        placeholder="VD: Quận 1, TP.HCM"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Website/Portfolio
+                      </label>
+                      <input
+                        type="url"
+                        name="website"
+                        value="{{ cv.website if cv else '' }}"
+                        class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg"
+                        placeholder="VD: https://portfolio.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                  Mô tả bản thân
+                </label>
+                <textarea
+                  name="summary"
+                  rows="6"
+                  class="w-full px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300 text-lg resize-none"
+                  placeholder="Mô tả ngắn gọn về bản thân, kinh nghiệm và mục tiêu nghề nghiệp..."
+                >
+{{ cv.summary if cv else 'Tôi là một Frontend Developer với 2 năm kinh nghiệm phát triển ứng dụng web hiện đại. Đam mê công nghệ và luôn học hỏi những kỹ thuật mới để tạo ra những sản phẩm chất lượng tốt nhất.' }}</textarea
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Education Tab -->
+          <div id="education-tab" class="tab-content hidden">
+            <div class="space-y-8">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900 mb-2">Học vấn</h3>
+                  <p class="text-gray-600">
+                    Thêm thông tin về quá trình học tập của bạn
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="add-education inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  <i class="fas fa-plus mr-2"></i>Thêm học vấn
+                </button>
+              </div>
+
+              <div id="education-list" class="space-y-6">
+                {% if cv and cv.education %}
+                  {% for edu in cv.education %}
+                <!-- Education Item {{ loop.index }} -->
+                <div
+                  class="education-item bg-white border-2 border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300"
+                >
+                  <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                      Học vấn #{{ loop.index }}
+                    </h4>
+                    <button
+                      type="button"
+                      class="remove-item p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Trường/Tổ chức *
+                      </label>
+                      <input
+                        type="text"
+                        name="education_school[]"
+                        value="{{ edu.school if edu.school else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Đại học Bách Khoa"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Chuyên ngành *
+                      </label>
+                      <input
+                        type="text"
+                        name="education_degree[]"
+                        value="{{ edu.degree if edu.degree else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Khoa học máy tính"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian bắt đầu
+                      </label>
+                      <input
+                        type="month"
+                        name="education_start[]"
+                        value="{{ edu.start_date if edu.start_date else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian kết thúc
+                      </label>
+                      <input
+                        type="month"
+                        name="education_end[]"
+                        value="{{ edu.end_date if edu.end_date else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      />
+                    </div>
+                    <div class="lg:col-span-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Mô tả thêm
+                      </label>
+                      <textarea
+                        name="education_description[]"
+                        rows="3"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300 resize-none"
+                        placeholder="GPA, thành tích, dự án..."
+                      >{{ edu.description if edu.description else '' }}</textarea>
+                    </div>
+                  </div>
+                </div>
+                  {% endfor %}
+                {% else %}
+                <!-- Default Education Item for new CV -->
+                <div
+                  class="education-item bg-white border-2 border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300"
+                >
+                  <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                      Học vấn #1
+                    </h4>
+                    <button
+                      type="button"
+                      class="remove-item p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Trường/Tổ chức *
+                      </label>
+                      <input
+                        type="text"
+                        name="education_school[]"
+                        value="Đại học Bách Khoa TP.HCM"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Đại học Bách Khoa"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Chuyên ngành *
+                      </label>
+                      <input
+                        type="text"
+                        name="education_degree[]"
+                        value="Khoa học máy tính"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Khoa học máy tính"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian bắt đầu
+                      </label>
+                      <input
+                        type="month"
+                        name="education_start[]"
+                        value="2019-09"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian kết thúc
+                      </label>
+                      <input
+                        type="month"
+                        name="education_end[]"
+                        value="2023-06"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      />
+                    </div>
+                    <div class="lg:col-span-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Mô tả thêm
+                      </label>
+                      <textarea
+                        name="education_description[]"
+                        rows="3"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300 resize-none"
+                        placeholder="GPA, thành tích, dự án..."
+                      >GPA: 3.5/4.0. Tốt nghiệp loại Khá.</textarea
+                      >
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Experience Tab -->
+          <div id="experience-tab" class="tab-content hidden">
+            <div class="space-y-8">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                    Kinh nghiệm làm việc
+                  </h3>
+                  <p class="text-gray-600">
+                    Thêm thông tin về kinh nghiệm nghề nghiệp
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="add-experience inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  <i class="fas fa-plus mr-2"></i>Thêm kinh nghiệm
+                </button>
+              </div>
+
+              <div id="experience-list" class="space-y-6">
+                {% if cv and cv.experience %}
+                  {% for exp in cv.experience %}
+                <!-- Experience Item {{ loop.index }} -->
+                <div
+                  class="experience-item bg-white border-2 border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300"
+                >
+                  <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                      Kinh nghiệm #{{ loop.index }}
+                    </h4>
+                    <button
+                      type="button"
+                      class="remove-item p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Công ty *
+                      </label>
+                      <input
+                        type="text"
+                        name="experience_company[]"
+                        value="{{ exp.company if exp.company else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: FPT Software"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Vị trí *
+                      </label>
+                      <input
+                        type="text"
+                        name="experience_position[]"
+                        value="{{ exp.position if exp.position else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Frontend Developer"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian bắt đầu
+                      </label>
+                      <input
+                        type="month"
+                        name="experience_start[]"
+                        value="{{ exp.start_date if exp.start_date else '' }}"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian kết thúc
+                      </label>
+                      <div class="relative">
+                        <input
+                          type="month"
+                          name="experience_end[]"
+                          value="{{ exp.end_date if exp.end_date else '' }}"
+                          class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                          {% if not exp.end_date %}disabled{% endif %}
+                        />
+                        <label class="flex items-center mt-2">
+                          <input
+                            type="checkbox"
+                            class="current-job rounded mr-2"
+                            {% if not exp.end_date %}checked{% endif %}
+                          />
+                          <span class="text-sm text-gray-600">Hiện tại</span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Mô tả công việc
+                      </label>
+                      <textarea
+                        name="experience_description[]"
+                        rows="4"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300 resize-none"
+                        placeholder="Mô tả chi tiết về công việc, trách nhiệm và thành tích..."
+                      >{{ exp.description if exp.description else '' }}</textarea>
+                    </div>
+                  </div>
+                </div>
+                  {% endfor %}
+                {% else %}
+                <!-- Default Experience Item for new CV -->
+                <div
+                  class="experience-item bg-white border-2 border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300"
+                >
+                  <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                      Kinh nghiệm #1
+                    </h4>
+                    <button
+                      type="button"
+                      class="remove-item p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Công ty *
+                      </label>
+                      <input
+                        type="text"
+                        name="experience_company[]"
+                        value="FPT Software"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: FPT Software"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Vị trí *
+                      </label>
+                      <input
+                        type="text"
+                        name="experience_position[]"
+                        value="Junior Frontend Developer"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Frontend Developer"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian bắt đầu
+                      </label>
+                      <input
+                        type="month"
+                        name="experience_start[]"
+                        value="2023-07"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Thời gian kết thúc
+                      </label>
+                      <div class="relative">
+                        <input
+                          type="month"
+                          name="experience_end[]"
+                          class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        />
+                        <label class="flex items-center mt-2">
+                          <input
+                            type="checkbox"
+                            class="current-job rounded mr-2"
+                          />
+                          <span class="text-sm text-gray-600">Hiện tại</span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                      <label
+                        class="block text-sm font-semibold text-gray-700 mb-3"
+                      >
+                        Mô tả công việc
+                      </label>
+                      <textarea
+                        name="experience_description[]"
+                        rows="4"
+                        class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300 resize-none"
+                        placeholder="Mô tả chi tiết về công việc, trách nhiệm và thành tích..."
+                      >- Phát triển giao diện web responsive với React.js và Tailwind CSS
+- Tối ưu hiệu suất website, giảm thời gian tải xuống 40%
+- Hợp tác với team backend để tích hợp API</textarea>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Skills Tab -->
+          <div id="skills-tab" class="tab-content hidden">
+            <div class="space-y-8">
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                  Kỹ năng và ngôn ngữ
+                </h3>
+                <p class="text-gray-600">
+                  Thể hiện khả năng và trình độ của bạn
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Technical Skills -->
+                <div class="bg-white border-2 border-gray-100 rounded-3xl p-8">
+                  <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                      Kỹ năng chuyên môn
+                    </h4>
+                    <button
+                      type="button"
+                      class="add-technical-skill p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  <div id="technical-skills" class="space-y-4">
+                    {% if cv and cv.technical_skills %}
+                      {% for skill in cv.technical_skills %}
+                    <div class="skill-item flex items-center space-x-3">
+                      <input
+                        type="text"
+                        name="technical_skills[]"
+                        value="{{ skill.name if skill.name else skill }}"
+                        class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: React.js"
+                      />
+                      <select
+                        name="technical_level[]"
+                        class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      >
+                        <option value="Beginner" {% if skill.level == 'Beginner' %}selected{% endif %}>Mới bắt đầu</option>
+                        <option value="Intermediate" {% if skill.level == 'Intermediate' or not skill.level %}selected{% endif %}>Trung bình</option>
+                        <option value="Advanced" {% if skill.level == 'Advanced' %}selected{% endif %}>Nâng cao</option>
+                        <option value="Expert" {% if skill.level == 'Expert' %}selected{% endif %}>Chuyên gia</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                      {% endfor %}
+                    {% else %}
+                    <!-- Default Technical Skills for new CV -->
+                    <div class="skill-item flex items-center space-x-3">
+                      <input
+                        type="text"
+                        name="technical_skills[]"
+                        value="JavaScript"
+                        class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: React.js"
+                      />
+                      <select
+                        name="technical_level[]"
+                        class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      >
+                        <option value="Beginner">Mới bắt đầu</option>
+                        <option value="Intermediate">Trung bình</option>
+                        <option value="Advanced" selected>Nâng cao</option>
+                        <option value="Expert">Chuyên gia</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="skill-item flex items-center space-x-3">
+                      <input
+                        type="text"
+                        name="technical_skills[]"
+                        value="React.js"
+                        class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: React.js"
+                      />
+                      <select
+                        name="technical_level[]"
+                        class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      >
+                        <option value="Beginner">Mới bắt đầu</option>
+                        <option value="Intermediate">Trung bình</option>
+                        <option value="Advanced" selected>Nâng cao</option>
+                        <option value="Expert">Chuyên gia</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- Soft Skills -->
+                <div class="bg-white border-2 border-gray-100 rounded-3xl p-8">
+                  <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-900">
+                      Kỹ năng mềm
+                    </h4>
+                    <button
+                      type="button"
+                      class="add-soft-skill p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  <div id="soft-skills" class="space-y-4">
+                    {% if cv and cv.soft_skills %}
+                      {% for skill in cv.soft_skills %}
+                    <div class="skill-item flex items-center space-x-3">
+                      <input
+                        type="text"
+                        name="soft_skills[]"
+                        value="{{ skill.name if skill.name else skill }}"
+                        class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Làm việc nhóm"
+                      />
+                      <select
+                        name="soft_level[]"
+                        class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      >
+                        <option value="Beginner" {% if skill.level == 'Beginner' %}selected{% endif %}>Mới bắt đầu</option>
+                        <option value="Intermediate" {% if skill.level == 'Intermediate' or not skill.level %}selected{% endif %}>Trung bình</option>
+                        <option value="Advanced" {% if skill.level == 'Advanced' %}selected{% endif %}>Nâng cao</option>
+                        <option value="Expert" {% if skill.level == 'Expert' %}selected{% endif %}>Chuyên gia</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                      {% endfor %}
+                    {% else %}
+                    <!-- Default Soft Skills for new CV -->
+                    <div class="skill-item flex items-center space-x-3">
+                      <input
+                        type="text"
+                        name="soft_skills[]"
+                        value="Làm việc nhóm"
+                        class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Làm việc nhóm"
+                      />
+                      <select
+                        name="soft_level[]"
+                        class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      >
+                        <option value="Beginner">Mới bắt đầu</option>
+                        <option value="Intermediate">Trung bình</option>
+                        <option value="Advanced" selected>Nâng cao</option>
+                        <option value="Expert">Chuyên gia</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <div class="skill-item flex items-center space-x-3">
+                      <input
+                        type="text"
+                        name="soft_skills[]"
+                        value="Giao tiếp"
+                        class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                        placeholder="VD: Giao tiếp"
+                      />
+                      <select
+                        name="soft_level[]"
+                        class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      >
+                        <option value="Beginner">Mới bắt đầu</option>
+                        <option value="Intermediate">Trung bình</option>
+                        <option value="Advanced" selected>Nâng cao</option>
+                        <option value="Expert">Chuyên gia</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Languages -->
+              <div class="bg-white border-2 border-gray-100 rounded-3xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900">Ngôn ngữ</h4>
+                  <button
+                    type="button"
+                    class="add-language p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                  >
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+                <div id="languages" class="space-y-4">
+                  {% if cv and cv.languages %}
+                    {% for language in cv.languages %}
+                  <div class="language-item flex items-center space-x-3">
+                    <input
+                      type="text"
+                      name="languages[]"
+                      value="{{ language.name if language.name else language }}"
+                      class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      placeholder="VD: Tiếng Anh"
+                    />
+                    <select
+                      name="language_level[]"
+                      class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                    >
+                      <option value="Basic" {% if language.level == 'Basic' %}selected{% endif %}>Cơ bản</option>
+                      <option value="Conversational" {% if language.level == 'Conversational' or not language.level %}selected{% endif %}>Giao tiếp</option>
+                      <option value="Fluent" {% if language.level == 'Fluent' %}selected{% endif %}>Thành thạo</option>
+                      <option value="Native" {% if language.level == 'Native' %}selected{% endif %}>Bản ngữ</option>
+                    </select>
+                    <button
+                      type="button"
+                      class="remove-language flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                    {% endfor %}
+                  {% else %}
+                  <!-- Default Language for new CV -->
+                  <div class="language-item flex items-center space-x-3">
+                    <input
+                      type="text"
+                      name="languages[]"
+                      value="Tiếng Anh"
+                      class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                      placeholder="VD: Tiếng Anh"
+                    />
+                    <select
+                      name="language_level[]"
+                      class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300"
+                    >
+                      <option value="Basic">Cơ bản</option>
+                      <option value="Conversational" selected>Giao tiếp</option>
+                      <option value="Fluent">Thành thạo</option>
+                      <option value="Native">Bản ngữ</option>
+                    </select>
+                    <button
+                      type="button"
+                      class="remove-language flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template Selection -->
+      <input
+        type="hidden"
+        name="template_id"
+        value="{{ template or 'modern_complete' }}"
+      />
+
+      <!-- Action Buttons -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+        <div
+          class="flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <button
+            type="button"
+            id="prevBtn"
+            class="hidden order-1 sm:order-none inline-flex items-center px-8 py-4 border-2 border-gray-200 text-gray-700 rounded-2xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-semibold"
+          >
+            <i class="fas fa-arrow-left mr-3"></i>Quay lại
+          </button>
+
+          <div class="flex items-center space-x-4 order-2 sm:order-none">
+            <button
+              type="button"
+              id="nextBtn"
+              class="inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+            >
+              Tiếp theo<i class="fas fa-arrow-right ml-3"></i>
+            </button>
+            <button
+              type="submit"
+              id="submitBtn"
+              class="hidden inline-flex items-center px-8 py-4 bg-green-600 text-white rounded-2xl hover:bg-green-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+            >
+              <i class="fas fa-check mr-3"></i>{{ 'Cập nhật' if cv else 'Hoàn
+              thành' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Enhanced tab navigation with progress tracking and form submission
+  document.addEventListener("DOMContentLoaded", function () {
+    const tabs = ["personal", "education", "experience", "skills"];
+    let currentTab = 0;
+
+    function updateTabAppearance(index) {
+      document.querySelectorAll(".tab-btn").forEach((btn, i) => {
+        const icon = btn.querySelector("div > div");
+        const isActive = i === index;
+        const isCompleted = i < index;
+
+        btn.classList.toggle("border-blue-600", isActive);
+        btn.classList.toggle("text-blue-600", isActive);
+        btn.classList.toggle("border-transparent", !isActive);
+        btn.classList.toggle("text-gray-500", !isActive && !isCompleted);
+        btn.classList.toggle("text-green-600", isCompleted);
+
+        icon.classList.toggle("bg-blue-100", isActive);
+        icon.classList.toggle("bg-green-100", isCompleted);
+        icon.classList.toggle("bg-gray-100", !isActive && !isCompleted);
+
+        const iconElement = icon.querySelector("i");
+        iconElement.classList.toggle("text-blue-600", isActive);
+        iconElement.classList.toggle("text-green-600", isCompleted);
+        iconElement.classList.toggle(
+          "text-gray-500",
+          !isActive && !isCompleted
+        );
+      });
+    }
+
+    function showTab(index) {
+      // Hide all tabs
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((tab) => tab.classList.add("hidden"));
+
+      // Show current tab
+      document.getElementById(tabs[index] + "-tab").classList.remove("hidden");
+
+      // Update tab appearance
+      updateTabAppearance(index);
+
+      // Update navigation buttons
+      document
+        .getElementById("prevBtn")
+        .classList.toggle("hidden", index === 0);
+      document
+        .getElementById("nextBtn")
+        .classList.toggle("hidden", index === tabs.length - 1);
+      document
+        .getElementById("submitBtn")
+        .classList.toggle("hidden", index !== tabs.length - 1);
+
+      // Update progress
+      const progress = ((index + 1) / tabs.length) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
+      document.getElementById("progressText").textContent =
+        Math.round(progress) + "%";
+    }
+
+    // Tab button clicks
+    document.querySelectorAll(".tab-btn").forEach((btn, index) => {
+      btn.addEventListener("click", () => {
+        currentTab = index;
+        showTab(currentTab);
+      });
+    });
+
+    // Navigation buttons
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentTab < tabs.length - 1) {
+        currentTab++;
+        showTab(currentTab);
+      }
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentTab > 0) {
+        currentTab--;
+        showTab(currentTab);
+      }
+    });
+
+    // Form submission with loading state
+    document.getElementById("cvForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("submitBtn");
+      const originalText = submitBtn.innerHTML;
+
+      // Show loading state
+      submitBtn.innerHTML =
+        '<i class="fas fa-spinner fa-spin mr-3"></i>Đang xử lý...';
+      submitBtn.disabled = true;
+
+      // Submit form
+      const formData = new FormData(this);
+
+      fetch(this.action, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => {
+          // Check if response is JSON
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            return response.json();
+          } else {
+            // If HTML response, it's likely a redirect or error page
+            if (response.ok) {
+              // Successful HTML response - redirect
+              window.location.href = response.url;
+              return;
+            } else {
+              throw new Error("Server returned an error");
+            }
+          }
+        })
+        .then((data) => {
+          if (data && data.success) {
+            showNotification(data.message, "success");
+            if (data.redirect_url) {
+              setTimeout(() => {
+                window.location.href = data.redirect_url;
+              }, 1500);
+            }
+          } else if (data) {
+            showNotification(
+              data.errors ? data.errors.join(", ") : "Có lỗi xảy ra",
+              "error"
+            );
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showNotification("Có lỗi xảy ra khi tạo CV", "error");
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+        });
+    });
+
+    // Enhanced add/remove functionality
+    function addSkill(container, type) {
+      const skillItem = document.createElement("div");
+      skillItem.className = "skill-item flex items-center space-x-3";
+      skillItem.innerHTML = `
+        <input type="text" name="${type}_skills[]" class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300" placeholder="Nhập kỹ năng">
+        <select name="${type}_level[]" class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300">
+          <option value="Beginner">Mới bắt đầu</option>
+          <option value="Intermediate">Trung bình</option>
+          <option value="Advanced">Nâng cao</option>
+          <option value="Expert">Chuyên gia</option>
+        </select>
+        <button type="button" class="remove-skill flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      container.appendChild(skillItem);
+    }
+
+    // Add education item
+    document.querySelector(".add-education").addEventListener("click", () => {
+      const container = document.getElementById("education-list");
+      const itemCount = container.children.length + 1;
+      const educationItem = document.createElement("div");
+      educationItem.className =
+        "education-item bg-white border-2 border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300";
+      educationItem.innerHTML = `
+        <div class="flex items-center justify-between mb-6">
+          <h4 class="text-lg font-semibold text-gray-900">Học vấn #${itemCount}</h4>
+          <button type="button" class="remove-item p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Trường/Tổ chức *</label>
+            <input type="text" name="education_school[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300" placeholder="VD: Đại học Bách Khoa">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Chuyên ngành *</label>
+            <input type="text" name="education_degree[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300" placeholder="VD: Khoa học máy tính">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Thời gian bắt đầu</label>
+            <input type="month" name="education_start[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Thời gian kết thúc</label>
+            <input type="month" name="education_end[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300">
+          </div>
+          <div class="lg:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Mô tả thêm</label>
+            <textarea name="education_description[]" rows="3" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300 resize-none" placeholder="GPA, thành tích, dự án..."></textarea>
+          </div>
+        </div>
+      `;
+      container.appendChild(educationItem);
+    });
+
+    // Add experience item
+    document.querySelector(".add-experience").addEventListener("click", () => {
+      const container = document.getElementById("experience-list");
+      const itemCount = container.children.length + 1;
+      const experienceItem = document.createElement("div");
+      experienceItem.className =
+        "experience-item bg-white border-2 border-gray-100 rounded-3xl p-8 hover:border-gray-200 transition-all duration-300";
+      experienceItem.innerHTML = `
+        <div class="flex items-center justify-between mb-6">
+          <h4 class="text-lg font-semibold text-gray-900">Kinh nghiệm #${itemCount}</h4>
+          <button type="button" class="remove-item p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Công ty *</label>
+            <input type="text" name="experience_company[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300" placeholder="VD: FPT Software">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Vị trí *</label>
+            <input type="text" name="experience_position[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300" placeholder="VD: Frontend Developer">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Thời gian bắt đầu</label>
+            <input type="month" name="experience_start[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Thời gian kết thúc</label>
+            <div class="relative">
+              <input type="month" name="experience_end[]" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300">
+              <label class="flex items-center mt-2">
+                <input type="checkbox" class="current-job rounded mr-2">
+                <span class="text-sm text-gray-600">Hiện tại</span>
+              </label>
+            </div>
+          </div>
+          <div class="lg:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Mô tả công việc</label>
+            <textarea name="experience_description[]" rows="4" class="w-full px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300 resize-none" placeholder="Mô tả chi tiết về công việc, trách nhiệm và thành tích..."></textarea>
+          </div>
+        </div>
+      `;
+      container.appendChild(experienceItem);
+    });
+
+    // Event listeners for add buttons
+    document
+      .querySelector(".add-technical-skill")
+      .addEventListener("click", () => {
+        addSkill(document.getElementById("technical-skills"), "technical");
+      });
+
+    document.querySelector(".add-soft-skill").addEventListener("click", () => {
+      addSkill(document.getElementById("soft-skills"), "soft");
+    });
+
+    // Add language
+    document.querySelector(".add-language").addEventListener("click", () => {
+      const container = document.getElementById("languages");
+      const languageItem = document.createElement("div");
+      languageItem.className = "language-item flex items-center space-x-3";
+      languageItem.innerHTML = `
+        <input type="text" name="languages[]" class="flex-1 min-w-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300" placeholder="VD: Tiếng Anh">
+        <select name="language_level[]" class="flex-shrink-0 px-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all duration-300">
+          <option value="Basic">Cơ bản</option>
+          <option value="Conversational">Giao tiếp</option>
+          <option value="Fluent">Thành thạo</option>
+          <option value="Native">Bản ngữ</option>
+        </select>
+        <button type="button" class="remove-language flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      container.appendChild(languageItem);
+    });
+
+    // Remove functionality with confirmation
+    document.addEventListener("click", function (e) {
+      if (
+        e.target.closest(".remove-skill") ||
+        e.target.closest(".remove-item") ||
+        e.target.closest(".remove-language")
+      ) {
+        if (confirm("Bạn có chắc muốn xóa mục này?")) {
+          e.target
+            .closest(
+              ".skill-item, .education-item, .experience-item, .language-item"
+            )
+            .remove();
+        }
+      }
+    });
+
+    // Handle current job checkbox
+    document.addEventListener("change", function (e) {
+      if (e.target.classList.contains("current-job")) {
+        const endDateInput = e.target
+          .closest("div")
+          .querySelector("input[type='month']");
+        if (e.target.checked) {
+          endDateInput.value = "";
+          endDateInput.disabled = true;
+        } else {
+          endDateInput.disabled = false;
+        }
+      }
+    });
+  });
+
+  // Notification system
+  function showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.className = `fixed top-4 right-4 px-6 py-4 rounded-2xl text-white z-50 transform translate-x-full transition-transform duration-300 ${
+      type === "success"
+        ? "bg-green-500"
+        : type === "error"
+        ? "bg-red-500"
+        : "bg-blue-500"
+    }`;
+    notification.innerHTML = `
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-${
+          type === "success"
+            ? "check"
+            : type === "error"
+            ? "exclamation-triangle"
+            : "info-circle"
+        }"></i>
+        <span>${message}</span>
+      </div>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.remove("translate-x-full");
+    }, 100);
+
+    setTimeout(() => {
+      notification.classList.add("translate-x-full");
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+</script>
+{% endblock %}

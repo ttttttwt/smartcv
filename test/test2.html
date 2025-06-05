@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart CV Canvas</title>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        #container {
+            border: 1px solid #ddd;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+
+    <script>
+        // Load JSON data
+        fetch('test2.json')
+            .then(response => response.json())
+            .then(jsonData => {
+                // Create stage using Konva.Node.create method
+                const stage = Konva.Node.create(jsonData, 'container');
+                
+                // Optional: Add some interactivity
+                stage.on('click', function(e) {
+                    console.log('Clicked on:', e.target.id() || e.target.className);
+                });
+                
+                // Make text elements selectable for editing (optional)
+                stage.find('Text').forEach(textNode => {
+                    textNode.on('dblclick', function() {
+                        // Enable text editing on double click
+                        const textPosition = textNode.absolutePosition();
+                        const stageBox = stage.container().getBoundingClientRect();
+                        
+                        const textarea = document.createElement('textarea');
+                        document.body.appendChild(textarea);
+                        
+                        textarea.value = textNode.text();
+                        textarea.style.position = 'absolute';
+                        textarea.style.top = (stageBox.top + textPosition.y) + 'px';
+                        textarea.style.left = (stageBox.left + textPosition.x) + 'px';
+                        textarea.style.width = textNode.width() + 'px';
+                        textarea.style.height = textNode.height() + 'px';
+                        textarea.style.fontSize = textNode.fontSize() + 'px';
+                        textarea.style.border = '1px solid #ccc';
+                        textarea.style.padding = '2px';
+                        textarea.style.margin = '0px';
+                        textarea.style.overflow = 'hidden';
+                        textarea.style.background = 'white';
+                        textarea.style.outline = 'none';
+                        textarea.style.resize = 'none';
+                        textarea.style.fontFamily = 'Arial';
+                        textarea.style.fontWeight = textNode.fontStyle() === 'bold' ? 'bold' : 'normal';
+                        
+                        textarea.focus();
+                        textarea.select();
+                        
+                        textarea.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                textNode.text(textarea.value);
+                                document.body.removeChild(textarea);
+                                stage.draw();
+                            }
+                            if (e.key === 'Escape') {
+                                document.body.removeChild(textarea);
+                            }
+                        });
+                        
+                        textarea.addEventListener('blur', function() {
+                            textNode.text(textarea.value);
+                            document.body.removeChild(textarea);
+                            stage.draw();
+                        });
+                    });
+                });
+                
+                console.log('CV Canvas created successfully!');
+            })
+            .catch(error => {
+                console.error('Error loading JSON:', error);
+                // Fallback: create empty stage if JSON fails to load
+                const stage = new Konva.Stage({
+                    container: 'container',
+                    width: 595,
+                    height: 842
+                });
+                
+                const layer = new Konva.Layer();
+                stage.add(layer);
+                
+                const errorText = new Konva.Text({
+                    x: 50,
+                    y: 50,
+                    text: 'Error loading CV data. Please check test2.json file.',
+                    fontSize: 16,
+                    fill: '#ff0000'
+                });
+                
+                layer.add(errorText);
+                layer.draw();
+            });
+    </script>
+</body>
+</html>

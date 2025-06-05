@@ -1,0 +1,328 @@
+{% extends "base.html" %} {% block title %}Hồ sơ cá nhân - Smart CV{% endblock
+%} {% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Profile Header with Edit Form -->
+  <div class="bg-white rounded-lg shadow-md p-8">
+    <form
+      id="profileForm"
+      method="POST"
+      action="{{ url_for('user.update_profile') }}"
+    >
+      <div
+        class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8"
+      >
+        <!-- Avatar -->
+        <div class="relative">
+          <div
+            class="w-32 h-32 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center text-white text-4xl font-bold"
+          >
+            {{ current_user.username[0].upper() }}
+          </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="flex-1 text-center md:text-left">
+          <!-- Edit/View Toggle Buttons -->
+          <div class="flex justify-center md:justify-start mb-4">
+            <button
+              type="button"
+              id="editBtn"
+              class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-2"
+            >
+              <i class="fas fa-edit mr-2"></i>Chỉnh sửa
+            </button>
+            <button
+              type="submit"
+              id="saveBtn"
+              class="bg-secondary hover:bg-green-600 text-white px-4 py-2 rounded-md mr-2 hidden"
+            >
+              <i class="fas fa-save mr-2"></i>Lưu thay đổi
+            </button>
+            <button
+              type="button"
+              id="cancelBtn"
+              class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md hidden"
+            >
+              <i class="fas fa-times mr-2"></i>Hủy
+            </button>
+          </div>
+
+          <!-- Username Field -->
+          <div class="mb-4">
+            <div id="usernameDisplay" class="view-mode">
+              <h1 class="text-3xl font-bold text-gray-800">
+                {{ current_user.username }}
+              </h1>
+            </div>
+            <div id="usernameEdit" class="edit-mode hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Họ và tên</label
+              >
+              <input
+                type="text"
+                name="username"
+                value="{{ current_user.username }}"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-xl font-bold"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Email Field -->
+            <div
+              class="flex items-center justify-center md:justify-start text-gray-600"
+            >
+              <i class="fas fa-envelope mr-3 text-primary"></i>
+              <div id="emailDisplay" class="view-mode">
+                <span>{{ current_user.email }}</span>
+              </div>
+              <div id="emailEdit" class="edit-mode hidden flex-1">
+                <input
+                  type="email"
+                  name="email"
+                  value="{{ current_user.email }}"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <!-- Phone Field -->
+            <div
+              class="flex items-center justify-center md:justify-start text-gray-600"
+            >
+              <i class="fas fa-phone mr-3 text-primary"></i>
+              <div id="phoneDisplay" class="view-mode">
+                <span
+                  >{{ current_user.phone or 'Chưa cập nhật số điện thoại'
+                  }}</span
+                >
+              </div>
+              <div id="phoneEdit" class="edit-mode hidden flex-1">
+                <input
+                  type="tel"
+                  name="phone"
+                  value="{{ current_user.phone or '' }}"
+                  placeholder="Nhập số điện thoại"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <!-- Join Date (Read-only) -->
+            <div
+              class="flex items-center justify-center md:justify-start text-gray-500"
+            >
+              <i class="fas fa-calendar-alt mr-3 text-primary"></i>
+              <span
+                >Tham gia ngày {{ current_user.created_at.strftime('%d/%m/%Y')
+                }}</span
+              >
+            </div>
+
+            <!-- Last Login (Read-only) -->
+            <div
+              class="flex items-center justify-center md:justify-start text-gray-500"
+            >
+              <i class="fas fa-clock mr-3 text-primary"></i>
+              <span
+                >Đăng nhập lần cuối: {{
+                current_user.last_login.strftime('%d/%m/%Y %H:%M') }}</span
+              >
+            </div>
+
+            <!-- Account Status (Read-only) -->
+            <div
+              class="flex items-center justify-center md:justify-start text-gray-500"
+            >
+              <i class="fas fa-shield-alt mr-3 text-primary"></i>
+              <span
+                class="{% if current_user.is_active %}text-green-600{% else %}text-red-600{% endif %}"
+              >
+                {% if current_user.is_active %}Tài khoản đang hoạt động{% else
+                %}Tài khoản đã bị khóa{% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Change Password Section -->
+    <div class="mt-8 pt-8 border-t border-gray-200">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">
+        <i class="fas fa-lock mr-2"></i>Đổi mật khẩu
+      </h2>
+      <form
+        id="passwordForm"
+        method="POST"
+        action="{{ url_for('user.change_password') }}"
+        class="max-w-md"
+      >
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Mật khẩu hiện tại</label
+            >
+            <input
+              type="password"
+              name="current_password"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Mật khẩu mới</label
+            >
+            <input
+              type="password"
+              name="new_password"
+              required
+              minlength="8"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Xác nhận mật khẩu mới</label
+            >
+            <input
+              type="password"
+              name="confirm_password"
+              required
+              minlength="8"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <button
+            type="submit"
+            class="bg-accent hover:bg-yellow-600 text-white px-4 py-2 rounded-md"
+          >
+            <i class="fas fa-key mr-2"></i>Đổi mật khẩu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const editBtn = document.getElementById("editBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const profileForm = document.getElementById("profileForm");
+    const passwordForm = document.getElementById("passwordForm");
+
+    // Store original values for cancel functionality
+    let originalValues = {};
+
+    // Toggle edit mode
+    editBtn.addEventListener("click", function () {
+      enterEditMode();
+    });
+
+    // Cancel edit
+    cancelBtn.addEventListener("click", function () {
+      exitEditMode();
+      restoreOriginalValues();
+    });
+
+    // Save profile changes
+    profileForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Basic validation
+      const username = document
+        .querySelector('input[name="username"]')
+        .value.trim();
+      const email = document.querySelector('input[name="email"]').value.trim();
+
+      if (!username || username.length < 2) {
+        alert("Họ tên phải có ít nhất 2 ký tự.");
+        return;
+      }
+
+      if (!email || !isValidEmail(email)) {
+        alert("Email không hợp lệ.");
+        return;
+      }
+
+      // Submit form
+      this.submit();
+    });
+
+    // Change password form validation
+    passwordForm.addEventListener("submit", function (e) {
+      const newPassword = document.querySelector(
+        'input[name="new_password"]'
+      ).value;
+      const confirmPassword = document.querySelector(
+        'input[name="confirm_password"]'
+      ).value;
+
+      if (newPassword !== confirmPassword) {
+        e.preventDefault();
+        alert("Mật khẩu xác nhận không khớp.");
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        e.preventDefault();
+        alert("Mật khẩu mới phải có ít nhất 8 ký tự.");
+        return;
+      }
+    });
+
+    function enterEditMode() {
+      // Store original values
+      originalValues = {
+        username: document.querySelector('input[name="username"]').value,
+        email: document.querySelector('input[name="email"]').value,
+        phone: document.querySelector('input[name="phone"]').value,
+      };
+
+      // Hide view elements, show edit elements
+      document
+        .querySelectorAll(".view-mode")
+        .forEach((el) => el.classList.add("hidden"));
+      document
+        .querySelectorAll(".edit-mode")
+        .forEach((el) => el.classList.remove("hidden"));
+
+      // Toggle buttons
+      editBtn.classList.add("hidden");
+      saveBtn.classList.remove("hidden");
+      cancelBtn.classList.remove("hidden");
+    }
+
+    function exitEditMode() {
+      // Show view elements, hide edit elements
+      document
+        .querySelectorAll(".view-mode")
+        .forEach((el) => el.classList.remove("hidden"));
+      document
+        .querySelectorAll(".edit-mode")
+        .forEach((el) => el.classList.add("hidden"));
+
+      // Toggle buttons
+      editBtn.classList.remove("hidden");
+      saveBtn.classList.add("hidden");
+      cancelBtn.classList.add("hidden");
+    }
+
+    function restoreOriginalValues() {
+      document.querySelector('input[name="username"]').value =
+        originalValues.username;
+      document.querySelector('input[name="email"]').value =
+        originalValues.email;
+      document.querySelector('input[name="phone"]').value =
+        originalValues.phone;
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+  });
+</script>
+{% endblock %}

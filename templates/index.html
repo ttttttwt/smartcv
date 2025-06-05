@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-primary to-secondary text-white py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6">
+        Tạo CV Thông Minh với AI
+      </h1>
+      <p class="text-xl md:text-2xl mb-8 text-blue-100">
+        Xây dựng CV chuyên nghiệp, tối ưu hóa theo ngành nghề và nổi bật trong
+        thị trường lao động
+      </p>
+      <div
+        class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center"
+      >
+        <a
+          href="/register"
+          class="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+        >
+          <i class="fas fa-rocket mr-2"></i>Đăng ký ngay
+        </a>
+        <a
+          href="/login"
+          class="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition"
+        >
+          <i class="fas fa-play mr-2"></i>Đăng nhập để bắt đầu
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="bg-gray-100 py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        Cách thức hoạt động
+      </h2>
+      <p class="text-xl text-gray-600">Chỉ 3 bước đơn giản để có CV hoàn hảo</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="text-center">
+        <div
+          class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4"
+        >
+          1
+        </div>
+        <h3 class="text-xl font-semibold mb-3">Nhập thông tin</h3>
+        <p class="text-gray-600">
+          Điền thông tin cá nhân, học vấn, kinh nghiệm và kỹ năng của bạn.
+        </p>
+      </div>
+
+      <div class="text-center">
+        <div
+          class="bg-secondary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4"
+        >
+          2
+        </div>
+        <h3 class="text-xl font-semibold mb-3">Chọn mẫu & tùy chỉnh</h3>
+        <p class="text-gray-600">
+          Chọn template phù hợp và tùy chỉnh thiết kế theo ý muốn.
+        </p>
+      </div>
+
+      <div class="text-center">
+        <div
+          class="bg-accent text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4"
+        >
+          3
+        </div>
+        <h3 class="text-xl font-semibold mb-3">Xuất & ứng tuyển</h3>
+        <p class="text-gray-600">
+          Tải xuống CV hoàn thiện và bắt đầu ứng tuyển công việc mơ ước.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

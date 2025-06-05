@@ -1,0 +1,2186 @@
+{% extends "base.html" %} {% block title %}Canvas Editor - Smart CV{% endblock
+%} {% block head %}
+
+<!-- Add CSRF token meta tag for JavaScript access -->
+{% if csrf_token %}
+<meta name="csrf-token" content="{{ csrf_token() }}" />
+{% endif %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/canvas_editor.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+/>
+
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+{% endblock %} {% block content %}
+<div class="canvas-editor">
+  <!-- Left Toolbar -->
+  <div class="canvas-toolbar">
+    {% include 'components/canvas_toolbar.html' %}
+  </div>
+
+  <!-- Main Canvas Workspace -->
+  <div class="canvas-workspace">
+    <!-- Workspace Header -->
+    <div class="workspace-header">
+      <div class="header-left">
+        <div class="canvas-info">
+          <h1 class="canvas-title" title="Double-click để đổi tên">
+            {{ cv.title if cv else 'CV Mới' }}
+          </h1>
+          <span class="canvas-meta">A4 Portrait • 210×297mm</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="design">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z"
+              />
+            </svg>
+            <span>Thiết kế</span>
+          </button>
+          <button class="view-btn" data-view="preview">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span>Xem trước</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="toolbar-group">
+          <!-- Zoom Controls -->
+          <div class="zoom-controls">
+            <button class="control-btn zoom-out" title="Thu nhỏ">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            </button>
+            <span class="zoom-level">100%</span>
+            <button class="control-btn zoom-in" title="Phóng to">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+                <line x1="11" y1="8" x2="11" y2="14" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            </button>
+            <button class="control-btn" data-action="fit" title="Vừa màn hình">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Grid Controls -->
+          <div class="grid-controls">
+            <button
+              class="control-btn"
+              id="grid-toggle"
+              data-action="toggle-grid"
+              title="Hiển thị lưới (Ctrl+G)"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Edit Controls -->
+          <div class="edit-controls">
+            <button
+              class="control-btn"
+              data-action="undo"
+              title="Hoàn tác (Ctrl+Z)"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </button>
+            <button
+              class="control-btn"
+              data-action="redo"
+              title="Làm lại (Ctrl+Y)"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M21 7v6h-6" />
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Action Controls -->
+          <div class="action-controls">
+            <button class="control-btn" data-action="save" title="Lưu (Ctrl+S)">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                />
+                <polyline points="17,21 17,13 7,13 7,21" />
+                <polyline points="7,3 7,8 15,8" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Export Control -->
+          <div class="export-controls">
+            <button class="primary-btn" id="exportFileBtn" title="Xuất file">
+              <i class="fa-regular fa-file-lines"></i>
+              <span>Xuất file</span>
+              <i class="fas fa-caret-down" style="margin-left: 8px"></i>
+            </button>
+            <div id="exportOptionsDropdown" class="dropdown-content hidden">
+              <div class="dropdown-item" data-action="export-png">
+                <i class="fa-regular fa-image"></i>
+                <span>Xuất PNG</span>
+              </div>
+              <div class="dropdown-item" data-action="export-pdf">
+                <i class="fa-regular fa-file-pdf"></i>
+                <span>Xuất PDF</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+      <!-- Canvas Stage -->
+      <div id="canvas-stage" class="canvas-stage"></div>
+
+      <!-- Canvas Overlays -->
+      <div class="canvas-overlay">
+        <div class="grid-overlay hidden" id="grid-overlay"></div>
+        <div class="guidelines"></div>
+        <div class="ruler-horizontal"></div>
+        <div class="ruler-vertical"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="canvas-loading" class="canvas-state hidden">
+        <div class="state-content">
+          <div class="loading-spinner"></div>
+          <h3 class="state-title">Đang tải canvas...</h3>
+          <p class="state-description">Vui lòng chờ trong giây lát</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="canvas-empty" class="canvas-state">
+        <div class="state-content">
+          <div class="state-icon">
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+              />
+              <polyline points="14,2 14,8 20,8" />
+            </svg>
+          </div>
+          <h3 class="state-title">Bắt đầu thiết kế CV</h3>
+          <p class="state-description">
+            Kéo thả các element từ toolbar bên trái hoặc chọn template có sẵn
+          </p>
+          <div class="state-actions">
+            <button class="template-btn">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z"
+                />
+              </svg>
+              <span>Chọn template</span>
+            </button>
+            <button class="blank-btn">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="12" y1="8" x2="12" y2="16" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+              </svg>
+              <span>Bắt đầu trống</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Footer -->
+    <div class="canvas-footer">
+      <div class="footer-left">
+        <div class="help-text">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <span
+            >Click để chọn • Kéo để di chuyển • Double-click để chỉnh sửa • Phím
+            mũi tên để di chuyển chính xác</span
+          >
+        </div>
+        <div
+          class="element-status"
+          style="margin-left: 20px; font-size: 11px; color: #6b7684"
+        >
+          Chọn một element để xem thông tin
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <div class="canvas-stats">
+          <div class="stat-item">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <rect x="9" y="9" width="6" height="6" />
+              <path
+                d="M9 1v6M15 1v6M9 17v6M15 17v6M1 9h6M1 15h6M17 9h6M17 15h6"
+              />
+            </svg>
+            <span id="element-count">0</span> elements
+          </div>
+          <div class="stat-item">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"
+              />
+            </svg>
+            Đã lưu <span id="last-saved">chưa bao giờ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Properties Panel -->
+  <div class="properties-panel">
+    {% include 'components/element_properties.html' %}
+  </div>
+</div>
+
+<!-- Template Selection Modal -->
+<div id="templateModal" class="modal-overlay hidden">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 class="modal-title">Chọn template CV</h2>
+      <button class="modal-close">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-content">
+      <div class="template-grid">
+        <div class="template-card" data-template="modern">
+          <div class="template-preview modern-preview">
+            <div class="preview-header"></div>
+            <div class="preview-content">
+              <div class="preview-line long"></div>
+              <div class="preview-line medium"></div>
+              <div class="preview-line short"></div>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4 class="template-name">Modern</h4>
+            <p class="template-description">Thiết kế hiện đại, tối giản</p>
+          </div>
+        </div>
+
+        <div class="template-card" data-template="classic">
+          <div class="template-preview classic-preview">
+            <div class="preview-header"></div>
+            <div class="preview-content">
+              <div class="preview-line long"></div>
+              <div class="preview-line medium"></div>
+              <div class="preview-line short"></div>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4 class="template-name">Classic</h4>
+            <p class="template-description">Phong cách truyền thống</p>
+          </div>
+        </div>
+
+        <div class="template-card" data-template="creative">
+          <div class="template-preview creative-preview">
+            <div class="preview-header"></div>
+            <div class="preview-content">
+              <div class="preview-line long"></div>
+              <div class="preview-line medium"></div>
+              <div class="preview-line short"></div>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4 class="template-name">Creative</h4>
+            <p class="template-description">Sáng tạo và nổi bật</p>
+          </div>
+        </div>
+
+        <div class="template-card" data-template="professional">
+          <div class="template-preview professional-preview">
+            <div class="preview-header"></div>
+            <div class="preview-content">
+              <div class="preview-line long"></div>
+              <div class="preview-line medium"></div>
+              <div class="preview-line short"></div>
+            </div>
+          </div>
+          <div class="template-info">
+            <h4 class="template-name">Professional</h4>
+            <p class="template-description">Chuyên nghiệp và trang trọng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div id="contextMenu" class="context-menu hidden">
+  <div class="context-item" data-action="copy">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+    <span>Sao chép</span>
+    <span class="shortcut">Ctrl+C</span>
+  </div>
+  <div class="context-item" data-action="paste">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path
+        d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+      />
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    </svg>
+    <span>Dán</span>
+    <span class="shortcut">Ctrl+V</span>
+  </div>
+  <div class="context-divider"></div>
+  <div class="context-item" data-action="bring-front">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="17,11 12,6 7,11" />
+      <polyline points="17,18 12,13 7,18" />
+    </svg>
+    <span>Đưa lên trên</span>
+  </div>
+  <div class="context-item" data-action="send-back">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="7,13 12,18 17,13" />
+      <polyline points="7,6 12,11 17,6" />
+    </svg>
+    <span>Đưa xuống dưới</span>
+  </div>
+  <div class="context-divider"></div>
+  <div class="context-item danger" data-action="delete">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <polyline points="3,6 5,6 21,6" />
+      <path
+        d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"
+      />
+    </svg>
+    <span>Xóa</span>
+    <span class="shortcut">Del</span>
+  </div>
+</div>
+
+<!-- Keyboard Shortcuts Help -->
+<div
+  id="shortcutsModal"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50"
+>
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full">
+      <div class="p-6 border-b border-gray-100">
+        <h3 class="text-2xl font-bold text-gray-900">Phím tắt</h3>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="shortcut-item">
+          <kbd>Ctrl + Z</kbd>
+          <span>Hoàn tác</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Ctrl + Y</kbd>
+          <span>Làm lại</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Ctrl + C</kbd>
+          <span>Sao chép</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Ctrl + V</kbd>
+          <span>Dán</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Delete</kbd>
+          <span>Xóa element</span>
+        </div>
+        <div class="shortcut-item">
+          <kbd>Ctrl + S</kbd>
+          <span>Lưu</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load element modules first -->
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/elements/elementFactory.js') }}"
+></script>
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/elements/elementManager.js') }}"
+></script>
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/elements/elementEventHandler.js') }}"
+></script>
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/element.js') }}"
+></script>
+<script src="{{ url_for('static', filename='js/canvas_editor.js') }}"></script>
+
+<script type="module">
+  // Import the element modules
+  import { ElementFactory, ElementManager, ElementEventHandler } from '{{ url_for("static", filename="js/element.js") }}';
+
+  document.addEventListener('DOMContentLoaded', function() {
+      if (document.getElementById('canvas-stage')) {
+          try {
+              // Make classes available globally for the canvas editor
+              window.ElementFactory = ElementFactory;
+              window.ElementManager = ElementManager;
+              window.ElementEventHandler = ElementEventHandler;
+
+              // Initialize Canvas Editor with modular components
+              const canvasEditor = new CanvasEditor('canvas-stage', {
+                  width: 595,  // A4 width in pixels at 72 DPI
+                  height: 842, // A4 height in pixels at 72 DPI
+                  scale: 1
+              });
+
+              // Make canvasEditor globally available
+              window.canvasEditor = canvasEditor;
+
+              // Initialize cvData globally - handle both cases where cv data exists or not
+              const cvData = {{ cv | tojson | safe }};
+              window.cvData = cvData || null;
+
+              // Load template data if available
+              const templateData = {{ template_data | safe }};
+
+              // Make title editable on double-click
+              setupEditableTitle();
+
+              // Load existing CV data into canvas
+              if (templateData && Object.keys(templateData).length > 0) {
+                  loadTemplateDataIntoCanvas(templateData);
+              } else if (window.cvData && window.cvData.id) {
+                  // Show empty state for existing CV without template data
+                  document.getElementById('canvas-empty').classList.remove('hidden');
+                  updateCanvasTitle(window.cvData.title || 'CV Mới');
+                  // Ensure canvas state is properly initialized
+                  canvasEditor.updateCanvasState();
+              } else {
+                  // Show empty state for new CV
+                  document.getElementById('canvas-empty').classList.remove('hidden');
+                  // Ensure canvas state is properly initialized
+                  canvasEditor.updateCanvasState();
+              }
+
+              // Function to load template data using Konva.Node.create
+              function loadTemplateDataIntoCanvas(data) {
+                  try {
+                      console.log('Loading template data:', data);
+
+                      // Show loading state
+                      document.getElementById('canvas-loading').classList.remove('hidden');
+                      document.getElementById('canvas-empty').classList.add('hidden');
+
+                      // Use the canvas editor's loadTemplateData method
+                      canvasEditor.loadTemplateData(data);
+
+                      // Hide loading state and update canvas state
+                      setTimeout(() => {
+                          document.getElementById('canvas-loading').classList.add('hidden');
+                          canvasEditor.updateCanvasState();
+                          showNotification('Template đã được tải thành công!', 'success');
+                      }, 500);
+
+                  } catch (error) {
+                      console.error('Error loading template data:', error);
+                      showNotification('Lỗi khi tải template data', 'error');
+                      showEmptyState();
+                  }
+              }
+
+              // Remove the old individual functions and replace with canvas editor methods
+              // Load Konva stage data structure
+              function loadKonvaStageData(stageData) {
+                  canvasEditor.loadKonvaStageData(stageData);
+              }
+
+              // Load custom elements data structure
+              function loadCustomElementsData(data) {
+                  canvasEditor.loadCustomElementsData(data);
+              }
+
+              // Load single node data
+              function loadSingleNodeData(nodeData) {
+                  canvasEditor.loadSingleNodeData(nodeData);
+              }
+
+              // Create Konva node from data using Konva.Node.create
+              function createNodeFromData(nodeData) {
+                  canvasEditor.createInteractiveNodeFromData(nodeData);
+              }
+
+              // Create element from custom data structure
+              function createElementFromCustomData(elementData) {
+                  canvasEditor.createInteractiveElementFromCustomData(elementData);
+              }
+
+              // Helper function to determine element type from Konva node
+              function getElementTypeFromNode(node) {
+                  return canvasEditor.getElementTypeFromNode(node);
+              }
+
+              // Extract properties from Konva node
+              function extractPropertiesFromNode(node) {
+                  return canvasEditor.extractPropertiesFromNode(node);
+              }
+
+              // Show empty state
+              function showEmptyState() {
+                  document.getElementById('canvas-loading').classList.add('hidden');
+                  document.getElementById('canvas-empty').classList.remove('hidden');
+              }
+
+              // Function to set up editable title
+              function setupEditableTitle() {
+                  const titleElement = document.querySelector('.canvas-title');
+                  if (titleElement) {
+                      titleElement.addEventListener('dblclick', function(e) {
+                          e.preventDefault();
+                          e.stopPropagation();
+
+                          // Get current title text
+                          const currentTitle = titleElement.textContent;
+
+                          // Create input element
+                          const inputElement = document.createElement('input');
+                          inputElement.type = 'text';
+                          inputElement.value = currentTitle;
+                          inputElement.className = 'canvas-title-edit';
+                          inputElement.style.cssText = `
+                              width: 100%;
+                              font-size: 16px;
+                              font-weight: 600;
+                              color: #1a1d29;
+                              border: none;
+                              border-bottom: 2px solid #206bc4;
+                              padding: 2px 0;
+                              background: transparent;
+                              outline: none;
+                              font-family: inherit;
+                          `;
+
+                          // Replace title with input
+                          titleElement.style.display = 'none';
+                          titleElement.parentNode.insertBefore(inputElement, titleElement);
+
+                          // Focus input and select all text
+                          inputElement.focus();
+                          inputElement.select();
+
+                          // Handle input completion - Enter key
+                          inputElement.addEventListener('keydown', function(e) {
+                              if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  saveTitle(inputElement.value);
+                              } else if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelEdit();
+                              }
+                          });
+
+                          // Handle input completion - click outside
+                          const handleClickOutside = function(e) {
+                              if (e.target !== inputElement) {
+                                  saveTitle(inputElement.value);
+                                  document.removeEventListener('click', handleClickOutside);
+                              }
+                          };
+
+                          // Delay adding the click listener to prevent immediate trigger
+                          setTimeout(() => {
+                              document.addEventListener('click', handleClickOutside);
+                          }, 10);
+
+                          // Function to save the title
+                          function saveTitle(newTitle) {
+                              const trimmedTitle = newTitle.trim();
+                              if (trimmedTitle === '') {
+                                  // Don't allow empty titles
+                                  titleElement.textContent = currentTitle;
+                              } else {
+                                  // Update the title
+                                  titleElement.textContent = trimmedTitle;
+
+                                  // Update cvData if it exists
+                                  if (window.cvData) {
+                                      window.cvData.title = trimmedTitle;
+                                  }
+                              }
+
+                              // Restore the title element
+                              titleElement.style.display = '';
+
+                              // Remove the input
+                              if (inputElement.parentNode) {
+                                  inputElement.parentNode.removeChild(inputElement);
+                              }
+
+                              // Auto-save if CV already exists
+                              if (window.cvData && window.cvData.id) {
+                                  saveCanvas();
+                              }
+                          }
+
+                          // Function to cancel editing
+                          function cancelEdit() {
+                              titleElement.style.display = '';
+                              if (inputElement.parentNode) {
+                                  inputElement.parentNode.removeChild(inputElement);
+                              }
+                              document.removeEventListener('click', handleClickOutside);
+                          }
+                      });
+                  }
+              }
+
+              // Update canvas title
+              function updateCanvasTitle(title) {
+                  const titleElement = document.querySelector('.canvas-title');
+                  if (titleElement) {
+                      titleElement.textContent = title;
+                  }
+              }
+
+              // Enhanced zoom controls - Use event delegation with proper prevention
+              document.addEventListener('click', (e) => {
+                  // Prevent event bubbling and default behavior for zoom buttons
+                  if (e.target.closest('.zoom-in')) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.stopImmediatePropagation();
+                      console.log('Zoom in button clicked');
+                      canvasEditor.zoomIn();
+                      return false;
+                  } else if (e.target.closest('.zoom-out')) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.stopImmediatePropagation();
+                      console.log('Zoom out button clicked');
+                      canvasEditor.zoomOut();
+                      return false;
+                  }
+              }, { capture: true }); // Use capture phase to handle events first
+
+              // Mouse wheel zoom
+              const canvasContainer = document.querySelector('.canvas-container');
+              if (canvasContainer) {
+                  canvasContainer.addEventListener('wheel', (e) => {
+                      if (e.ctrlKey || e.metaKey) {
+                          e.preventDefault();
+
+                          // Get mouse position relative to container
+                          const rect = canvasContainer.getBoundingClientRect();
+                          const mousePoint = {
+                              x: e.clientX - rect.left,
+                              y: e.clientY - rect.top
+                          };
+
+                          const delta = e.deltaY > 0 ? -1 : 1;
+                          const currentScale = canvasEditor.getCurrentZoom();
+                          const zoomFactor = 1.1;
+                          const newScale = delta > 0 ? currentScale * zoomFactor : currentScale / zoomFactor;
+
+                          canvasEditor.zoomToPoint(mousePoint, newScale);
+                      }
+                  });
+              }
+
+              // Enhanced keyboard shortcuts including element movement
+              document.addEventListener('keydown', (e) => {
+                  if (e.ctrlKey || e.metaKey) {
+                      switch(e.key) {
+                          case 'z':
+                              e.preventDefault();
+                              canvasEditor.undo();
+                              break;
+                          case 'y':
+                              e.preventDefault();
+                              canvasEditor.redo();
+                              break;
+                          case 's':
+                              e.preventDefault();
+                              saveCanvas();
+                              break;
+                          case 'c':
+                              if (canvasEditor.elementManager?.selectedElement) {
+                                  e.preventDefault();
+                                  canvasEditor.copyElement();
+                              }
+                              break;
+                          case 'v':
+                              e.preventDefault();
+                              canvasEditor.pasteElement();
+                              break;
+                          case 'd':
+                              if (canvasEditor.elementManager?.selectedElement) {
+                                  e.preventDefault();
+                                  canvasEditor.copyElement();
+                                  canvasEditor.pasteElement();
+                              }
+                              break;
+                          case 'g':
+                              e.preventDefault();
+                              toggleGrid();
+                              break;
+                          case '=':
+                          case '+':
+                              e.preventDefault();
+                              e.stopPropagation();
+                              canvasEditor.zoomIn();
+                              break;
+                          case '-':
+                              e.preventDefault();
+                              e.stopPropagation();
+                              canvasEditor.zoomOut();
+                              break;
+                          case '0':
+                              e.preventDefault();
+                              canvasEditor.resetZoom();
+                              break;
+                      }
+                  } else if (e.key === 'Delete' && canvasEditor.elementManager?.selectedElement) {
+                      canvasEditor.deleteSelectedElement();
+                  } else if (e.key === 'Escape' && canvasEditor.elementManager?.selectedElement) {
+                      canvasEditor.elementManager.deselectElement();
+                  }
+              });
+
+              // Template Modal
+              const templateModal = document.getElementById('templateModal');
+              const templateButtons = document.querySelectorAll('.template-btn, .blank-btn');
+              const closeModal = document.querySelector('.modal-close');
+
+              templateButtons.forEach(btn => {
+                  btn.addEventListener('click', () => {
+                      templateModal.classList.remove('hidden');
+                  });
+              });
+
+              closeModal?.addEventListener('click', () => {
+                  templateModal.classList.add('hidden');
+              });
+
+              // Template Selection
+              document.addEventListener('click', (e) => {
+                  if (e.target.closest('.template-card')) {
+                      const template = e.target.closest('.template-card').dataset.template;
+                      loadTemplate(template);
+                      templateModal.classList.add('hidden');
+                  }
+              });
+
+              // View Toggle
+              document.addEventListener('click', (e) => {
+                  if (e.target.closest('.view-btn')) {
+                      const viewBtns = document.querySelectorAll('.view-btn');
+                      viewBtns.forEach(btn => btn.classList.remove('active'));
+                      e.target.closest('.view-btn').classList.add('active');
+
+                      const view = e.target.closest('.view-btn').dataset.view;
+                      handleViewChange(view);
+                  }
+              });
+
+              // Canvas Actions - Add specific handling for zoom actions
+              document.addEventListener('click', (e) => {
+                  const target = e.target;
+                  const exportBtn = document.getElementById('exportFileBtn');
+                  const exportDropdown = document.getElementById('exportOptionsDropdown');
+
+                  // Handle export dropdown toggle
+                  if (exportBtn && exportBtn.contains(target)) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      exportDropdown.classList.toggle('hidden');
+                      return;
+                  }
+
+                  // Hide dropdown if clicked outside
+                  if (exportDropdown && !exportDropdown.classList.contains('hidden') && !exportDropdown.contains(target)) {
+                      exportDropdown.classList.add('hidden');
+                  }
+
+                  const actionElement = target.closest('[data-action]');
+                  if (actionElement) {
+                      const action = actionElement.dataset.action;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCanvasAction(action);
+                      // Hide dropdown if an item was clicked
+                      if (exportDropdown && actionElement.closest('#exportOptionsDropdown')) {
+                          exportDropdown.classList.add('hidden');
+                      }
+                  }
+              });
+
+              // Context Menu
+              document.addEventListener('contextmenu', (e) => {
+                  if (e.target.closest('#canvas-stage')) {
+                      e.preventDefault();
+                      showContextMenu(e.clientX, e.clientY);
+                  }
+              });
+
+              // Context Menu Actions
+              document.addEventListener('click', (e) => {
+                  if (e.target.closest('.context-item')) {
+                      const action = e.target.closest('.context-item').dataset.action;
+                      handleContextAction(action);
+                      hideContextMenu();
+                  }
+              });
+
+              // Hide context menu on click
+              document.addEventListener('click', () => {
+                  hideContextMenu();
+              });
+
+              // Initialize canvas state properly
+              canvasEditor.updateCanvasState();
+
+              // Template loading functions
+              function loadTemplate(templateName) {
+                  document.getElementById('canvas-loading').classList.remove('hidden');
+                  document.getElementById('canvas-empty').classList.add('hidden');
+
+                  // Fetch template data from server
+                  fetch(`/cv/api/templates/${templateName}/preview`)
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success && data.template.template_data) {
+                              loadTemplateDataIntoCanvas(data.template.template_data);
+                          } else {
+                              // Fallback to creating sample elements
+                              loadSampleTemplate(templateName);
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error loading template:', error);
+                          loadSampleTemplate(templateName);
+                      });
+              }
+
+              function loadSampleTemplate(templateName) {
+                  setTimeout(() => {
+                      switch(templateName) {
+                          case 'modern':
+                              loadModernTemplate();
+                              break;
+                          case 'classic':
+                              loadClassicTemplate();
+                              break;
+                          case 'creative':
+                              loadCreativeTemplate();
+                              break;
+                          case 'professional':
+                              loadProfessionalTemplate();
+                              break;
+                      }
+
+                      document.getElementById('canvas-loading').classList.add('hidden');
+                      canvasEditor.updateCanvasState(); // Ensure state is updated after loading template
+                  }, 1000);
+              }
+
+              function loadModernTemplate() {
+                  canvasEditor.createElement('heading');
+                  canvasEditor.createElement('text');
+                  canvasEditor.createElement('avatar'); // Example usage
+                  canvasEditor.createElement('text');
+                  canvasEditor.createElement('text');
+                  canvasEditor.createElement('heading');
+                  canvasEditor.createElement('rectangle');
+                  canvasEditor.createElement('circle'); // Example usage
+              }
+
+              function loadClassicTemplate() {
+                  canvasEditor.createElement('heading');
+                  canvasEditor.createElement('text');
+              }
+
+              function loadCreativeTemplate() {
+                  canvasEditor.createElement('rectangle');
+                  canvasEditor.createElement('heading');
+              }
+
+              function loadProfessionalTemplate() {
+                  canvasEditor.createElement('heading');
+                  canvasEditor.createElement('text');
+                  canvasEditor.createElement('text');
+                  canvasEditor.createElement('text');
+                  canvasEditor.createElement('rectangle');
+              }
+
+              function handleViewChange(view) {
+                  if (view === 'preview') {
+                      document.querySelector('.canvas-toolbar').style.display = 'none';
+                      document.querySelector('.properties-panel').style.display = 'none';
+                      canvasEditor.setPreviewMode(true);
+                  } else {
+                      document.querySelector('.canvas-toolbar').style.display = 'block';
+                      document.querySelector('.properties-panel').style.display = 'block';
+                      canvasEditor.setPreviewMode(false);
+                  }
+              }
+
+              function handleCanvasAction(action) {
+                  switch(action) {
+                      case 'undo':
+                          canvasEditor.undo();
+                          break;
+                      case 'redo':
+                          canvasEditor.redo();
+                          break;
+                      case 'save':
+                          saveCanvas();
+                          break;
+                      case 'export-pdf': // Updated action
+                          exportToPDF();
+                          break;
+                      case 'export-png': // New action
+                          exportToPNG();
+                          break;
+                      case 'fit':
+                          canvasEditor.fitToScreen();
+                          break;
+                      case 'toggle-grid':
+                          toggleGrid();
+                          break;
+                  }
+              }
+
+              function handleContextAction(action) {
+                  switch(action) {
+                      case 'copy':
+                          canvasEditor.copyElement();
+                          break;
+                      case 'paste':
+                          canvasEditor.pasteElement();
+                          break;
+                      case 'delete':
+                          canvasEditor.deleteSelectedElement();
+                          break;
+                      case 'bring-front':
+                          if (canvasEditor.elementManager?.selectedElement) {
+                              canvasEditor.elementManager.selectedElement.moveToTop();
+                              canvasEditor.layer.draw();
+                          }
+                          break;
+                      case 'send-back':
+                          if (canvasEditor.elementManager?.selectedElement) {
+                              canvasEditor.elementManager.selectedElement.moveToBottom();
+                              canvasEditor.layer.draw();
+                          }
+                          break;
+                  }
+              }
+
+              function exportToPDF() {
+                  if (window.cvData && window.cvData.id) {
+                      showNotification('Đang chuẩn bị file PDF...', 'info');
+                      window.location.href = `/cv/${window.cvData.id}/download?format=pdf`;
+                  } else {
+                      showNotification('Vui lòng lưu CV trước khi xuất file.', 'error');
+                  }
+              }
+
+              function exportToPNG() {
+                  if (window.cvData && window.cvData.id) {
+                      showNotification('Đang chuẩn bị file PNG...', 'info');
+                      window.location.href = `/cv/${window.cvData.id}/download?format=png`;
+                  } else {
+                      showNotification('Vui lòng lưu CV trước khi xuất file.', 'error');
+                  }
+              }
+
+              // Function to save canvas data
+              async function saveCanvas() {
+                  if (!window.canvasEditor || !window.canvasEditor.stage) {
+                      showNotification('Canvas chưa sẵn sàng để lưu.', 'error');
+                      return;
+                  }
+
+                  showNotification('Đang lưu CV...', 'info');
+
+                  const cvId = window.cvData && window.cvData.id ? window.cvData.id : null;
+                  const currentTitle = document.querySelector('.canvas-title')?.textContent || (cvId && window.cvData ? window.cvData.title : 'CV Mới từ Canvas');
+                  // Use template_id from cvData if available, otherwise a default for new canvas CVs
+                  const currentTemplateId = window.cvData && window.cvData.template_id ? window.cvData.template_id : 'default_canvas';
+                  const canvasJSON = window.canvasEditor.stage.toJSON();
+
+                  console.log('Saving CV with data:', {
+                      cv_id: cvId,
+                      title: currentTitle,
+                      template_id: currentTemplateId,
+                      template_data_json: canvasJSON
+                  });
+
+                  try {
+                      const response = await fetch("{{ url_for('cv.save_cv_canvas') }}", {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'X-CSRFToken': "{{ csrf_token() if csrf_token else '' }}" // Add CSRF token if your app uses it
+                          },
+                          body: JSON.stringify({
+                              cv_id: cvId,
+                              title: currentTitle,
+                              template_id: currentTemplateId,
+                              template_data_json: canvasJSON
+                          })
+                      });
+
+                      const result = await response.json();
+
+                      if (result.success) {
+                          showNotification(result.message || 'CV đã được lưu thành công!', 'success');
+
+                          // Update last saved time
+                          const lastSavedDisplay = document.getElementById('last-saved');
+                          if (lastSavedDisplay) {
+                              lastSavedDisplay.textContent = new Date(result.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          }
+
+                          // Initialize window.cvData if it doesn't exist
+                          if (!window.cvData) window.cvData = {};
+
+                          // Update window.cvData with response data
+                          window.cvData.id = result.cv_id;
+                          window.cvData.title = result.title;
+                          window.cvData.updated_at = result.updated_at;
+                          if (!cvId) { // If it was a new CV
+                            window.cvData.template_id = currentTemplateId; // Store the template_id used
+                          }
+
+                          // Update canvas title in the header
+                          const canvasTitleElement = document.querySelector('.canvas-title');
+                          if (canvasTitleElement) {
+                              canvasTitleElement.textContent = result.title;
+                          }
+
+                          // If it was a new CV, update the URL without full reload
+                          if (!cvId && result.redirect_url) {
+                              history.pushState({ cv_id: result.cv_id }, result.title, result.redirect_url);
+                          }
+
+                      } else {
+                          showNotification(result.error || 'Lưu CV thất bại. Vui lòng thử lại.', 'error');
+                      }
+                  } catch (error) {
+                      console.error('Error saving CV:', error);
+                      showNotification('Lỗi kết nối khi lưu CV.', 'error');
+                  }
+              }
+
+              // Context Menu
+              function showContextMenu(x, y) {
+                  const contextMenu = document.getElementById('contextMenu');
+                  contextMenu.style.left = x + 'px';
+                  contextMenu.style.top = y + 'px';
+                  contextMenu.classList.remove('hidden');
+              }
+
+              function hideContextMenu() {
+                  document.getElementById('contextMenu').classList.add('hidden');
+              }
+
+              function showNotification(message, type = 'info') {
+                  const notification = document.createElement('div');
+                  notification.className = `notification notification-${type}`;
+                  notification.textContent = message;
+                  notification.style.cssText = `
+                      position: fixed;
+                      top: 20px;
+                      right: 20px;
+                      padding: 12px 16px;
+                      background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                      color: white;
+                      border-radius: 8px;
+                      z-index: 1000;
+                      font-size: 14px;
+                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                  `;
+                  document.body.appendChild(notification);
+
+                  setTimeout(() => {
+                      notification.remove();
+                  }, 3000);
+              }
+
+              // Grid functionality
+              let gridEnabled = false;
+              const gridSize = 20; // Grid spacing in pixels
+
+              function toggleGrid() {
+                  gridEnabled = !gridEnabled;
+                  const gridOverlay = document.getElementById('grid-overlay');
+                  const gridToggle = document.getElementById('grid-toggle');
+
+                  if (gridEnabled) {
+                      gridOverlay.classList.remove('hidden');
+                      gridToggle.classList.add('active');
+                      generateGrid();
+                      showNotification('Lưới đã được bật', 'success');
+                  } else {
+                      gridOverlay.classList.add('hidden');
+                      gridToggle.classList.remove('active');
+                      showNotification('Lưới đã được tắt', 'info');
+                  }
+              }
+
+              function generateGrid() {
+                  const gridOverlay = document.getElementById('grid-overlay');
+                  const canvasStage = document.getElementById('canvas-stage');
+
+                  if (!gridOverlay || !canvasStage) return;
+
+                  // Clear existing grid
+                  gridOverlay.innerHTML = '';
+
+                  // Get canvas dimensions and current zoom
+                  const canvasWidth = canvasEditor.options.width;
+                  const canvasHeight = canvasEditor.options.height;
+                  const currentScale = canvasEditor.stage ? canvasEditor.stage.scaleX() : 1;
+
+                  // Set grid overlay size and position to match canvas
+                  gridOverlay.style.width = canvasWidth + 'px';
+                  gridOverlay.style.height = canvasHeight + 'px';
+                  gridOverlay.style.position = 'absolute';
+                  gridOverlay.style.top = '50%';
+                  gridOverlay.style.left = '50%';
+                  gridOverlay.style.transform = `translate(-50%, -50%) scale(${currentScale})`;
+                  gridOverlay.style.pointerEvents = 'none';
+                  gridOverlay.style.zIndex = '1';
+                  gridOverlay.style.transformOrigin = 'center center';
+
+                  // Create grid pattern using CSS
+                  const scaledGridSize = gridSize;
+                  gridOverlay.style.backgroundImage = `
+                      linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px)
+                  `;
+                  gridOverlay.style.backgroundSize = `${scaledGridSize}px ${scaledGridSize}px`;
+                  gridOverlay.style.backgroundPosition = '0 0, 0 0';
+              }
+
+              // Update grid when canvas is resized or zoomed
+              window.addEventListener('resize', () => {
+                  if (gridEnabled) {
+                      generateGrid();
+                  }
+              });
+
+              // Listen for stage scale changes to update grid
+              if (canvasEditor && canvasEditor.stage) {
+                  canvasEditor.stage.on('scaleChange', () => {
+                      if (gridEnabled) {
+                          updateGridScale();
+                      }
+                  });
+              }
+
+              function updateGridScale() {
+                  const gridOverlay = document.getElementById('grid-overlay');
+                  if (!gridOverlay || !canvasEditor) return;
+
+                  const scale = canvasEditor.stage.scaleX();
+                  const position = canvasEditor.stage.position();
+                  const canvasWidth = canvasEditor.options.width;
+                  const canvasHeight = canvasEditor.options.height;
+
+                  // For zoom = 1, ensure we use the exact initial transform to match canvas stage
+                  if (Math.abs(scale - 1) < 0.001) {
+                      gridOverlay.style.width = canvasWidth + 'px';
+                      gridOverlay.style.height = canvasHeight + 'px';
+                      gridOverlay.style.transform = 'translate(-50%, -50%)';
+                      gridOverlay.style.transformOrigin = 'center center';
+                  } else {
+                      // Calculate the relative position change from initial state
+                      const initialPos = canvasEditor.initialState.position;
+                      const deltaX = position.x - initialPos.x;
+                      const deltaY = position.y - initialPos.y;
+
+                      gridOverlay.style.width = canvasWidth + 'px';
+                      gridOverlay.style.height = canvasHeight + 'px';
+                      gridOverlay.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px)) scale(${scale})`;
+                      gridOverlay.style.transformOrigin = 'center center';
+                  }
+              }
+
+          } catch (error) {
+              console.error('Failed to initialize Canvas Editor:', error);
+              showNotification('Lỗi khởi tạo Canvas Editor', 'error');
+          }
+      }
+  });
+</script>
+
+<style>
+  /* Hide footer for canvas editor */
+  footer {
+    display: none !important;
+  }
+
+  /* Modern Canvas Editor Styles */
+  .canvas-editor {
+    display: flex;
+    height: 100vh;
+    background: #fafbfc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+      sans-serif;
+    overflow: hidden;
+  }
+
+  /* Workspace Header */
+  .workspace-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    background: #ffffff;
+    border-bottom: 1px solid #e1e5e9;
+    padding: 0 24px;
+    z-index: 10;
+    position: relative;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .canvas-info {
+    min-width: 0;
+  }
+
+  .canvas-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1d29;
+    margin: 0 0 2px 0;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    cursor: pointer; /* Add pointer cursor to indicate it's interactive */
+  }
+
+  .canvas-title:hover {
+    text-decoration: underline;
+    color: #206bc4;
+  }
+
+  /* Focus style for title input */
+  .canvas-title-edit:focus {
+    box-shadow: 0 2px 4px rgba(32, 107, 196, 0.2);
+  }
+
+  .canvas-meta {
+    font-size: 12px;
+    color: #6b7684;
+    font-weight: 400;
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .view-toggle {
+    display: flex;
+    background: #f1f3f4;
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .view-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #5f6c7b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .view-btn.active {
+    background: #ffffff;
+    color: #1a1d29;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+  }
+
+  .view-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .zoom-controls,
+  .edit-controls,
+  .action-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .export-controls {
+    /* Added style for the new export control group */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative; /* For dropdown positioning */
+  }
+
+  .control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #ffffff;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #656d76;
+  }
+
+  .control-btn:hover {
+    background: #f6f8fa;
+    border-color: #8c959f;
+    color: #24292f;
+  }
+
+  .control-btn:active {
+    background: #eaeef2;
+  }
+
+  .zoom-level {
+    min-width: 48px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #656d76;
+  }
+
+  .toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: #d1d9e0;
+  }
+
+  .primary-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(180deg, #54a3ff 0%, #206bc4 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+    white-space: nowrap; /* Added to prevent text wrapping */
+  }
+
+  .primary-btn i.fa-caret-down {
+    /* Style for the dropdown arrow */
+    font-size: 12px;
+  }
+
+  .primary-btn:hover {
+    background: linear-gradient(180deg, #4c96f0 0%, #1c63b8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 24, 40, 0.15);
+  }
+
+  .primary-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Dropdown Content */
+  .dropdown-content {
+    display: block; /* Will be toggled by JS via 'hidden' class */
+    position: absolute;
+    top: 100%; /* Position below the button */
+    right: 0; /* Align to the right of the button container */
+    background-color: #ffffff;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 100; /* Ensure it's above other elements */
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+    margin-top: 4px; /* Small gap from the button */
+  }
+
+  .dropdown-item {
+    color: #24292f;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: flex; /* Use flex to align icon and text */
+    align-items: center; /* Vertically align icon and text */
+    gap: 8px; /* Space between icon and text */
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .dropdown-item:hover {
+    background-color: #f6f8fa;
+  }
+
+  .dropdown-item i {
+    /* Style for icons within dropdown items */
+    width: 14px; /* Ensure consistent icon width */
+    text-align: center;
+    color: #656d76;
+  }
+
+  .dropdown-item:first-child {
+    border-top-left-radius: 7px; /* Match parent's border-radius */
+    border-top-right-radius: 7px;
+  }
+
+  .dropdown-item:last-child {
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+  }
+
+  /* Canvas Container */
+  .canvas-container {
+    flex: 1;
+    position: relative;
+    background: #f1f3f4;
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 0
+    );
+    background-size: 20px 20px;
+    overflow: auto; /* Ensures scrollbars appear for overflow */
+    display: grid; /* Added for centering #canvas-stage */
+    place-items: center; /* Added for centering #canvas-stage */
+  }
+
+  .canvas-stage {
+    /* position: absolute; */ /* Removed */
+    /* top: 50%; */ /* Removed */
+    /* left: 50%; */ /* Removed */
+    /* transform: translate(-50%, -50%); */ /* Removed */
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1),
+      0 10px 40px rgba(16, 24, 40, 0.08);
+    overflow: hidden; /* This is for Konva content inside, keep it */
+  }
+
+  /* Canvas States */
+  .canvas-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    z-index: 5;
+  }
+
+  .state-content {
+    padding: 40px 24px;
+  }
+
+  .state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f1f3f4 0%, #e1e5e9 100%);
+    border-radius: 20px;
+    margin: 0 auto 24px;
+    color: #6b7684;
+  }
+
+  .loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e1e5e9;
+    border-top: 3px solid #206bc4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1d29;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+  }
+
+  .state-description {
+    font-size: 14px;
+    color: #6b7684;
+    line-height: 1.5;
+    margin: 0 0 32px 0;
+  }
+
+  .state-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .template-btn,
+  .blank-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 180px;
+    justify-content: center;
+  }
+
+  .template-btn {
+    background: linear-gradient(180deg, #54a3ff 0%, #206bc4 100%);
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+  }
+
+  .template-btn:hover {
+    background: linear-gradient(180deg, #4c96f0 0%, #1c63b8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(16, 24, 40, 0.15);
+  }
+
+  .blank-btn {
+    background: #ffffff;
+    color: #5f6c7b;
+    border: 1px solid #d0d7de;
+  }
+
+  .blank-btn:hover {
+    background: #f6f8fa;
+    border-color: #8c959f;
+    color: #24292f;
+  }
+
+  /* Canvas Footer */
+  .canvas-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 44px;
+    background: #ffffff;
+    border-top: 1px solid #e1e5e9;
+    padding: 0 24px;
+    font-size: 12px;
+    color: #6b7684;
+  }
+
+  .footer-left,
+  .footer-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .help-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .canvas-stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  /* Template Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 24, 40, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-container {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(16, 24, 40, 0.4);
+    max-width: 800px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 24px 0;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1d29;
+    margin: 0;
+  }
+
+  .modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #f6f8fa;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #656d76;
+    transition: all 0.15s ease;
+  }
+
+  .modal-close:hover {
+    background: #eaeef2;
+    color: #24292f;
+  }
+
+  .modal-content {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(80vh - 80px);
+  }
+
+  .template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+  }
+
+  .template-card {
+    background: #ffffff;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .template-card:hover {
+    border-color: #206bc4;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+  }
+
+  .template-preview {
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .modern-preview {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .classic-preview {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+
+  .creative-preview {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  }
+
+  .professional-preview {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  }
+
+  .preview-header {
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 12px;
+    border-radius: 4px;
+  }
+
+  .preview-content {
+    padding: 0 12px;
+  }
+
+  .preview-line {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    margin-bottom: 4px;
+  }
+
+  .preview-line.long {
+    width: 80%;
+  }
+
+  .preview-line.medium {
+    width: 60%;
+  }
+
+  .preview-line.short {
+    width: 40%;
+  }
+
+  .template-info {
+    text-align: left;
+  }
+
+  .template-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1d29;
+    margin: 0 0 4px 0;
+  }
+
+  .template-description {
+    font-size: 12px;
+    color: #6b7684;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Context Menu */
+  .context-menu {
+    position: fixed;
+    background: #ffffff;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.15);
+    padding: 4px 0;
+    min-width: 200px;
+    z-index: 1000;
+  }
+
+  .context-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #24292f;
+    transition: background 0.15s ease;
+  }
+
+  .context-item:hover {
+    background: #f6f8fa;
+  }
+
+  .context-item.danger {
+    color: #cf222e;
+  }
+
+  .context-item.danger:hover {
+    background: #ffebe9;
+  }
+
+  .context-item span:first-of-type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .shortcut {
+    font-size: 11px;
+    color: #656d76;
+    font-family: monospace;
+  }
+
+  .context-divider {
+    height: 1px;
+    background: #e1e5e9;
+    margin: 4px 0;
+  }
+
+  /* Utility Classes */
+  .hidden {
+    display: none !important;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .workspace-header {
+      padding: 0 16px;
+      height: 56px;
+    }
+
+    .canvas-title {
+      font-size: 14px;
+      max-width: 150px;
+    }
+
+    .toolbar-group {
+      gap: 8px;
+    }
+
+    .control-btn {
+      width: 32px;
+      height: 32px;
+    }
+
+    .primary-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .canvas-footer {
+      padding: 0 16px;
+      height: 40px;
+    }
+
+    .footer-left .help-text span {
+      display: none;
+    }
+
+    .canvas-stats {
+      gap: 12px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .header-center {
+      order: 3;
+    }
+
+    .header-right {
+      order: 2;
+      flex: 0 0 auto;
+    }
+
+    .view-toggle {
+      margin-top: 8px;
+    }
+
+    .toolbar-group {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .zoom-level {
+      min-width: 40px;
+    }
+
+    .primary-btn span {
+      display: none;
+    }
+
+    .template-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .modal-container {
+      margin: 8px;
+      max-height: calc(100vh - 16px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .workspace-header {
+      flex-direction: column;
+      height: auto;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    .header-left,
+    .header-center,
+    .header-right {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .view-toggle {
+      margin: 0;
+    }
+
+    .template-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .canvas-footer {
+      flex-direction: column;
+      height: auto;
+      padding: 8px 16px;
+      gap: 8px;
+    }
+
+    .footer-left,
+    .footer-right {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .canvas-stats {
+      gap: 16px;
+    }
+  }
+</style>
+{% endblock %}

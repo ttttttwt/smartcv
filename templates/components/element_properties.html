@@ -1,0 +1,740 @@
+<div class="properties-panel">
+  <!-- Properties Header -->
+  <div class="properties-header">
+    <h3 class="properties-title">
+      <i class="fas fa-sliders-h mr-2"></i>
+      Thuộc tính
+    </h3>
+    <p class="text-sm text-gray-600 mt-1">Tùy chỉnh element đã chọn</p>
+  </div>
+
+  <!-- Properties Content -->
+  <div class="properties-content">
+    <!-- Default message when no element selected -->
+    <div id="no-selection" class="text-center py-8">
+      <div
+        class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+      >
+        <i class="fas fa-mouse-pointer text-gray-400 text-2xl"></i>
+      </div>
+      <p class="text-gray-500 mb-2">Chưa chọn element nào</p>
+      <p class="text-sm text-gray-400">Nhấp vào element để chỉnh sửa</p>
+    </div>
+
+    <!-- General Properties (position, size) -->
+    <div id="general-properties" class="hidden">
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-arrows-alt mr-1"></i>
+          Vị trí
+        </label>
+        <div class="property-row">
+          <div class="property-input-group">
+            <input
+              type="number"
+              class="property-input"
+              id="pos-x"
+              data-property="x"
+              placeholder="X"
+            />
+            <span class="input-unit">px</span>
+          </div>
+          <div class="property-input-group">
+            <input
+              type="number"
+              class="property-input"
+              id="pos-y"
+              data-property="y"
+              placeholder="Y"
+            />
+            <span class="input-unit">px</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-expand-arrows-alt mr-1"></i>
+          Kích thước
+        </label>
+        <div class="property-row">
+          <div class="property-input-group">
+            <input
+              type="number"
+              class="property-input"
+              id="size-width"
+              data-property="width"
+              placeholder="Rộng"
+            />
+            <span class="input-unit">px</span>
+          </div>
+          <div class="property-input-group">
+            <input
+              type="number"
+              class="property-input"
+              id="size-height"
+              data-property="height"
+              placeholder="Cao"
+            />
+            <span class="input-unit">px</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-layer-group mr-1"></i>
+          Thứ tự hiển thị
+        </label>
+        <div class="layer-controls">
+          <button
+            class="layer-btn"
+            data-action="bring-front"
+            title="Đưa lên trên"
+          >
+            <i class="fas fa-angle-double-up"></i>
+          </button>
+          <button
+            class="layer-btn"
+            data-action="bring-forward"
+            title="Đưa lên 1 lớp"
+          >
+            <i class="fas fa-angle-up"></i>
+          </button>
+          <button
+            class="layer-btn"
+            data-action="send-backward"
+            title="Đưa xuống 1 lớp"
+          >
+            <i class="fas fa-angle-down"></i>
+          </button>
+          <button
+            class="layer-btn"
+            data-action="send-back"
+            title="Đưa xuống dưới"
+          >
+            <i class="fas fa-angle-double-down"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text Properties -->
+    <div id="text-properties" class="hidden">
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-edit mr-1"></i>
+          Nội dung
+        </label>
+        <textarea
+          class="property-input"
+          id="text-content"
+          data-property="text"
+          rows="3"
+          placeholder="Nhập văn bản..."
+        ></textarea>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-text-height mr-1"></i>
+          Kích thước font
+        </label>
+        <div class="property-input-group">
+          <input
+            type="number"
+            class="property-input"
+            id="font-size"
+            data-property="fontSize"
+            min="8"
+            max="72"
+            placeholder="14"
+          />
+          <span class="input-unit">px</span>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-font mr-1"></i>
+          Font chữ
+        </label>
+        <select
+          class="property-input"
+          id="font-family"
+          data-property="fontFamily"
+        >
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Helvetica">Helvetica</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Inter">Inter</option>
+          <option value="Roboto">Roboto</option>
+        </select>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-palette mr-1"></i>
+          Màu chữ
+        </label>
+        <div class="color-picker">
+          <input
+            type="color"
+            class="color-input"
+            id="text-color"
+            data-property="fill"
+            value="#333333"
+          />
+          <input
+            type="text"
+            class="color-text"
+            value="#333333"
+            placeholder="#000000"
+          />
+          <div class="color-presets">
+            <div
+              class="color-preset"
+              data-color="#000000"
+              style="background: #000000"
+            ></div>
+            <div
+              class="color-preset"
+              data-color="#333333"
+              style="background: #333333"
+            ></div>
+            <div
+              class="color-preset"
+              data-color="#666666"
+              style="background: #666666"
+            ></div>
+            <div
+              class="color-preset"
+              data-color="#2563eb"
+              style="background: #2563eb"
+            ></div>
+            <div
+              class="color-preset"
+              data-color="#dc2626"
+              style="background: #dc2626"
+            ></div>
+            <div
+              class="color-preset"
+              data-color="#16a34a"
+              style="background: #16a34a"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-bold mr-1"></i>
+          Định dạng
+        </label>
+        <div class="format-controls">
+          <button class="format-btn" data-style="bold" title="Đậm">
+            <i class="fas fa-bold"></i>
+          </button>
+          <button class="format-btn" data-style="italic" title="Nghiêng">
+            <i class="fas fa-italic"></i>
+          </button>
+          <button class="format-btn" data-style="underline" title="Gạch chân">
+            <i class="fas fa-underline"></i>
+          </button>
+          <div class="format-divider"></div>
+          <button class="format-btn" data-align="left" title="Căn trái">
+            <i class="fas fa-align-left"></i>
+          </button>
+          <button class="format-btn" data-align="center" title="Căn giữa">
+            <i class="fas fa-align-center"></i>
+          </button>
+          <button class="format-btn" data-align="right" title="Căn phải">
+            <i class="fas fa-align-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-arrows-alt-h mr-1"></i>
+          Khoảng cách
+        </label>
+        <div class="property-row">
+          <div class="property-input-group">
+            <input
+              type="number"
+              class="property-input"
+              id="line-height"
+              data-property="lineHeight"
+              placeholder="1.5"
+              step="0.1"
+            />
+            <span class="input-unit">em</span>
+          </div>
+          <div class="property-input-group">
+            <input
+              type="number"
+              class="property-input"
+              id="letter-spacing"
+              data-property="letterSpacing"
+              placeholder="0"
+              step="0.1"
+            />
+            <span class="input-unit">px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shape Properties -->
+    <div id="shape-properties" class="hidden">
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-fill mr-1"></i>
+          Màu nền
+        </label>
+        <div class="color-picker">
+          <input
+            type="color"
+            class="color-input"
+            id="fill-color"
+            data-property="fill"
+            value="#667eea"
+          />
+          <input
+            type="text"
+            class="color-text"
+            value="#667eea"
+            placeholder="#000000"
+          />
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-border-style mr-1"></i>
+          Viền
+        </label>
+        <div class="border-controls">
+          <div class="property-row mb-10">
+            <div class="property-input-group">
+              <input
+                type="color"
+                class="color-input"
+                id="stroke-color"
+                data-property="stroke"
+                value="#5a67d8"
+              />
+              <span class="input-label">Màu</span>
+            </div>
+            <div class="property-input-group">
+              <input
+                type="number"
+                class="property-input"
+                id="stroke-width"
+                data-property="strokeWidth"
+                min="0"
+                max="20"
+                placeholder="2"
+              />
+              <span class="input-unit">px</span>
+            </div>
+          </div>
+          <select class="property-input" id="stroke-style" data-property="dash">
+            <option value="">Liền</option>
+            <option value="5,5">Đứt</option>
+            <option value="10,5">Gạch dài</option>
+            <option value="2,2">Chấm</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-corner mr-1"></i>
+          Bo góc
+        </label>
+        <div class="property-input-group">
+          <input
+            type="number"
+            class="property-input"
+            id="corner-radius"
+            data-property="cornerRadius"
+            min="0"
+            max="50"
+            placeholder="0"
+          />
+          <span class="input-unit">px</span>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-adjust mr-1"></i>
+          Hiệu ứng
+        </label>
+        <div class="effect-controls">
+          <div class="property-row mb-10">
+            <div class="property-input-group">
+              <input
+                type="range"
+                class="property-slider"
+                id="opacity"
+                data-property="opacity"
+                min="0"
+                max="1"
+                step="0.1"
+                value="1"
+              />
+              <span class="input-label">Độ trong suốt</span>
+            </div>
+          </div>
+          <div class="checkbox-group">
+            <input
+              type="checkbox"
+              id="shadow-enabled"
+              class="property-checkbox"
+            />
+            <label for="shadow-enabled">Đổ bóng</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Properties -->
+    <div id="image-properties" class="hidden">
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-image mr-1"></i>
+          Hình ảnh
+        </label>
+        <div class="image-controls">
+          <button class="upload-btn" id="image-upload">
+            <i class="fas fa-cloud-upload-alt mr-2"></i>
+            Tải ảnh lên
+          </button>
+          <input type="file" id="image-file" accept="image/*" class="hidden" />
+          <div class="image-preview" id="image-preview">
+            <div class="preview-placeholder">
+              <i class="fas fa-image text-gray-400 text-2xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-crop mr-1"></i>
+          Điều chỉnh
+        </label>
+        <div class="image-adjustments">
+          <select class="property-input mb-10" id="crop-mode">
+            <option value="fill">Điền đầy</option>
+            <option value="fit">Vừa khung</option>
+            <option value="stretch">Kéo giãn</option>
+            <option value="crop">Cắt</option>
+          </select>
+          <div class="adjustment-sliders">
+            <div class="slider-group">
+              <label>Độ sáng</label>
+              <input
+                type="range"
+                class="property-slider"
+                min="-100"
+                max="100"
+                value="0"
+              />
+            </div>
+            <div class="slider-group">
+              <label>Độ tương phản</label>
+              <input
+                type="range"
+                class="property-slider"
+                min="-100"
+                max="100"
+                value="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Button -->
+    <div id="delete-section" class="hidden property-group border-t pt-4 mt-6">
+      <button class="delete-btn w-full" id="delete-element">
+        <i class="fas fa-trash mr-2"></i>
+        Xóa element
+      </button>
+    </div>
+
+    <!-- AI Properties -->
+    <div id="ai-properties" class="hidden">
+      <div class="property-group">
+        <label class="property-label">
+          <i class="fas fa-robot mr-1"></i>
+          Gợi ý AI
+        </label>
+        <button class="ai-hint-btn" id="generate-hint">
+          <i class="fas fa-magic mr-2"></i>
+          Tạo gợi ý
+        </button>
+        <textarea
+          class="property-input ai-prompt-textarea"
+          id="ai-prompt"
+          data-property="aiPrompt"
+          rows="3"
+          placeholder="Nhập mô tả cho AI..."
+        ></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .property-input-group {
+    position: relative;
+    flex: 1;
+  }
+
+  .input-unit,
+  .input-label {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #6b7280;
+    pointer-events: none;
+  }
+
+  .color-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .color-picker input[type="color"] {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .ai-hint-btn {
+    display: block; /* Or inline-block if preferred next to something */
+    width: 100%; /* Full width like other inputs, or adjust as needed */
+    padding: 8px 12px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .ai-hint-btn:hover {
+    background-color: #e0e0e0;
+  }
+
+  .ai-prompt-textarea {
+    margin-top: 5px;
+  }
+
+  .ai-prompt-container {
+    margin-top: 8px;
+    /* display: flex; /* if you want textarea and button side-by-side */
+    /* flex-direction: column; /* if you want them stacked */
+    /* gap: 5px; */ /* if using flex */
+  }
+
+  .ai-submit-btn {
+    display: block; /* Or inline-block if preferred next to something */
+    width: 100%; /* Full width like other inputs, or adjust as needed */
+    padding: 8px 12px;
+    margin-top: 8px; /* Space above the submit button */
+    background-color: #667eea; /* A primary color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .ai-submit-btn:hover {
+    background-color: #5a67d8; /* Darker shade on hover */
+  }
+
+  .color-text {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+  }
+
+  .color-presets {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .color-preset {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .color-preset:hover,
+  .color-preset.active {
+    border-color: #667eea;
+  }
+
+  .format-controls,
+  .layer-controls {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .format-btn,
+  .layer-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .format-btn:hover,
+  .layer-btn:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+  }
+
+  .format-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+  }
+
+  .format-divider {
+    width: 1px;
+    height: 24px;
+    background: #dee2e6;
+    margin: 6px 4px;
+  }
+
+  .property-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #e5e7eb;
+    outline: none;
+    appearance: none;
+  }
+
+  .property-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .property-checkbox {
+    width: 16px;
+    height: 16px;
+  }
+
+  .upload-btn {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #dee2e6;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-btn:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+    color: #667eea;
+  }
+
+  .image-preview {
+    margin-top: 10px;
+    width: 100%;
+    height: 120px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+  }
+
+  .preview-placeholder {
+    color: #9ca3af;
+  }
+
+  .slider-group {
+    margin-bottom: 12px;
+  }
+
+  .slider-group label {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+
+  .delete-btn {
+    padding: 12px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+  }
+
+  .delete-btn:hover {
+    background: #b91c1c;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+</style>

@@ -1,0 +1,552 @@
+/* Canvas Editor Main Container */
+.canvas-editor {
+    display: flex;
+    height: 100vh;
+    background-color: #f8f9fa;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+/* Toolbar Sidebar */
+.canvas-toolbar {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.toolbar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.toolbar-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Toolbar Sections */
+.toolbar-section {
+    padding: 20px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Element Buttons */
+.element-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #495057;
+}
+
+.element-btn:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    transform: translateY(-1px);
+}
+
+.element-btn i {
+    margin-right: 10px;
+    font-size: 16px;
+    color: #667eea;
+}
+
+/* Canvas Workspace */
+.canvas-workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.workspace-header {
+    height: 60px;
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.workspace-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.zoom-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.zoom-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+}
+
+/* Canvas Container */
+.canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: auto; /* Ensures scrollbars appear for overflow */
+    background: #f8f9fa;
+    background-image: 
+        linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    user-select: none;
+    cursor: grab;
+    display: grid; /* Added for centering #canvas-stage */
+    place-items: center; /* Added for centering #canvas-stage */
+}
+
+.canvas-container:active {
+    cursor: grabbing;
+}
+
+.canvas-stage {
+    /* position: absolute; */ /* Removed */
+    /* top: 50%; */ /* Removed */
+    /* left: 50%; */ /* Removed */
+    /* transform: translate(-50%, -50%); */ /* Removed */
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    overflow: hidden; /* This is for Konva content inside, keep it */
+    cursor: default;
+    /* transform-origin: center center; */ /* Removed */
+    /* transition: transform 0.1s ease-out; */ /* Removed */
+}
+
+/* Properties Panel */
+.properties-panel {
+    width: 300px;
+    background: white;
+    border-left: 1px solid #e9ecef;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.properties-header {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.properties-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+}
+
+.properties-content {
+    padding: 20px;
+}
+
+.property-group {
+    margin-bottom: 20px;
+}
+
+.property-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.property-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.property-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.property-row {
+    display: flex;
+    gap: 10px;
+}
+
+.property-row .property-input {
+    flex: 1;
+}
+
+/* Color Picker */
+.color-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-input {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+}
+
+/* Font Controls */
+.font-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.font-btn {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.font-btn:hover,
+.font-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* Enhanced Canvas Elements Styles for Dragging */
+.cv-element {
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.cv-element:hover {
+    opacity: 0.9;
+}
+
+.cv-element.selected {
+    cursor: move;
+}
+
+.cv-element.dragging {
+    opacity: 0.8;
+    z-index: 1000;
+    cursor: grabbing !important;
+}
+
+/* Grid Controls */
+.grid-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.control-btn.active {
+    background: #206bc4;
+    color: white;
+    border-color: #206bc4;
+}
+
+.control-btn.active:hover {
+    background: #1c63b8;
+    border-color: #1c63b8;
+}
+
+/* Grid Overlay */
+.grid-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+    transition: opacity 0.3s ease, transform 0.1s ease-out;
+    transform-origin: center center;
+}
+
+.grid-overlay.hidden {
+    display: none;
+}
+
+/* Canvas Overlay Enhancement */
+.canvas-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.canvas-overlay .guidelines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.canvas-overlay .ruler-horizontal,
+.canvas-overlay .ruler-vertical {
+    position: absolute;
+    background: rgba(102, 126, 234, 0.2);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.canvas-overlay .ruler-horizontal {
+    height: 1px;
+    left: 0;
+    right: 0;
+}
+
+.canvas-overlay .ruler-vertical {
+    width: 1px;
+    top: 0;
+    bottom: 0;
+}
+
+/* Canvas Container Enhancement for Dragging */
+.canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: auto; /* Ensures scrollbars appear for overflow */
+    background: #f8f9fa;
+    background-image: 
+        linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    user-select: none;
+    /* display: grid; already in main definition */
+    /* place-items: center; already in main definition */
+}
+
+/* Dragging State for Canvas */
+.canvas-stage.dragging {
+    cursor: grabbing;
+}
+
+/* Canvas Container Enhancement for Zoom */
+.canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: auto; /* Ensures scrollbars appear for overflow */
+    background: #f8f9fa;
+    background-image: 
+        linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    user-select: none;
+    cursor: grab;
+    /* display: grid; already in main definition */
+    /* place-items: center; already in main definition */
+}
+
+/* Enhanced zoom controls */
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    padding: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.zoom-level {
+    min-width: 50px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #656d76;
+    font-family: 'Monaco', 'Menlo', monospace;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Grid Overlay Enhancement for Zoom */
+.grid-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+    transition: opacity 0.3s ease, transform 0.1s ease-out;
+    transform-origin: center center;
+}
+
+.grid-overlay.hidden {
+    display: none;
+}
+
+/* Zoom-aware canvas elements */
+.cv-element {
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.cv-element:hover {
+    opacity: 0.9;
+}
+
+.cv-element.selected {
+    cursor: move;
+}
+
+.cv-element.dragging {
+    opacity: 0.8;
+    z-index: 1000;
+    cursor: grabbing !important;
+}
+
+/* Enhanced selection border that scales with zoom */
+.selection-border {
+    pointer-events: none;
+    animation: selectionPulse 2s infinite;
+}
+
+@keyframes selectionPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .canvas-toolbar {
+        width: 250px;
+    }
+    
+    .properties-panel {
+        width: 250px;
+    }
+    
+    .canvas-editor {
+        overflow: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .canvas-editor {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .canvas-toolbar,
+    .properties-panel {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        order: 2;
+    }
+    
+    .canvas-workspace {
+        height: 60vh;
+        min-height: 400px;
+        order: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .canvas-toolbar,
+    .properties-panel {
+        max-height: 150px;
+    }
+    
+    .canvas-workspace {
+        height: 50vh;
+        min-height: 300px;
+    }
+}
+
+/* Loading Animation */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}

@@ -1,0 +1,1130 @@
+{% extends "base.html" %} {% block title %}Xem trước CV - {{ cv.title }} - Smart
+CV{% endblock %} {% block head %} {{ super() }}
+<!-- Add Konva.js for canvas rendering -->
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+{% endblock %} {% block content %}
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-4">
+          <a
+            href="{{ url_for('cv.cv_list') }}"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-arrow-left text-xl"></i>
+          </a>
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900">{{ cv.title }}</h1>
+            <p class="text-sm text-gray-500">{{ cv.template_name }}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <!-- Zoom Controls -->
+          <div class="flex items-center space-x-1 bg-gray-100 rounded-md p-1">
+            <button
+              id="zoomOut"
+              class="p-2 hover:bg-white rounded text-gray-600"
+            >
+              <i class="fas fa-search-minus"></i>
+            </button>
+            <span
+              id="zoomLevel"
+              class="px-3 py-1 text-sm font-medium text-gray-700"
+              >90%</span
+            >
+            <button
+              id="zoomIn"
+              class="p-2 hover:bg-white rounded text-gray-600"
+            >
+              <i class="fas fa-search-plus"></i>
+            </button>
+          </div>
+
+          <!-- Actions -->
+          <div class="relative">
+            <button
+              id="editBtn"
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            >
+              <i class="fas fa-edit mr-2"></i>Chỉnh sửa
+            </button>
+            <div
+              id="editMenu"
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 hidden"
+            >
+              <div class="py-1">
+                {% if cv.is_canvas_editor %}
+                <!-- Canvas Editor CV - Only show Canvas edit option -->
+                <a
+                  href="{{ url_for('cv.canvas_editor', cv_id=cv.id) }}"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-paint-brush mr-2 text-blue-500"></i>Chỉnh sửa
+                  Canvas
+                </a>
+                {% else %}
+                <!-- Form-based CV - Show both options -->
+                <a
+                  href="{{ url_for('cv.canvas_editor', cv_id=cv.id) }}"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-paint-brush mr-2 text-blue-500"></i>Chỉnh sửa
+                  Canvas
+                </a>
+                <a
+                  href="{{ url_for('cv.edit_cv_form', cv_id=cv.id, editor='form') }}"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-list-alt mr-2 text-green-500"></i>Chỉnh sửa
+                  Form
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="relative">
+            <button
+              id="downloadBtn"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <i class="fas fa-download mr-2"></i>Tải xuống
+            </button>
+            <div
+              id="downloadMenu"
+              class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10 hidden"
+            >
+              <div class="py-1">
+                <a
+                  href="{{ url_for('cv.export_cv_pdf', cv_id=cv.id) }}"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onclick="handleDownload(event, {{ cv.id }}, 'pdf')"
+                >
+                  <i class="fas fa-file-pdf mr-2 text-red-500"></i>Tải PDF
+                </a>
+                <div class="border-t border-gray-100"></div>
+                <a
+                  href="{{ url_for('cv.download_cv', cv_id=cv.id, format='png') }}"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onclick="handleDownload(event, {{ cv.id }}, 'png', 300)"
+                >
+                  <i class="fas fa-image mr-2 text-green-500"></i>Tải PNG (300
+                  DPI)
+                </a>
+                <div class="border-t border-gray-100"></div>
+                <button
+                  onclick="shareCV({{ cv.id }})"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-link mr-2 text-purple-500"></i>Chia sẻ link
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-80 bg-white shadow-lg border-r overflow-y-auto">
+      <div class="p-6">
+        <!-- CV Info -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Thông tin CV</h2>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Tên:</span>
+              <span class="font-medium">{{ cv.title }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Template:</span>
+              <span class="font-medium">{{ cv.template_name }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Cập nhật:</span>
+              <span class="font-medium">{{ cv.updated_at }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Lượt xem:</span>
+              <span class="font-medium">{{ cv.views }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Tải xuống:</span>
+              <span class="font-medium">{{ cv.downloads or 0 }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Nguồn dữ liệu:</span>
+              <span class="font-medium">Template Data</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CV Analysis -->
+        <div id="analysisSection" class="mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Phân tích CV</h3>
+            <button
+              id="analyzeBtn"
+              onclick="analyzeCV({{ cv.id }})"
+              class="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              <i class="fas fa-chart-bar mr-1"></i>Phân tích
+            </button>
+          </div>
+
+          <!-- Loading State -->
+          <div id="analysisLoading" class="hidden">
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+              <i class="fas fa-spinner fa-spin text-gray-400 text-2xl mb-2"></i>
+              <p class="text-sm text-gray-600">Đang phân tích CV...</p>
+            </div>
+          </div>
+
+          <!-- Analysis Results -->
+          <div id="analysisResults" class="hidden">
+            <!-- Overall Score -->
+            <div
+              class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 mb-4"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700"
+                  >Điểm tổng thể</span
+                >
+                <span
+                  id="overallScore"
+                  class="text-2xl font-bold text-green-600"
+                  >0/100</span
+                >
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  id="overallProgressBar"
+                  class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <p id="overallFeedback" class="text-xs text-gray-600 mt-2">
+                Đang phân tích...
+              </p>
+            </div>
+
+            <!-- Score Breakdown -->
+            <div class="space-y-3" id="scoreBreakdown">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div id="suggestionsSection" class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Gợi ý cải thiện
+          </h3>
+
+          <!-- Loading State -->
+          <div id="suggestionsLoading" class="hidden">
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+              <i class="fas fa-lightbulb text-gray-400 text-xl mb-2"></i>
+              <p class="text-sm text-gray-600">Đang tạo gợi ý...</p>
+            </div>
+          </div>
+
+          <!-- Suggestions Results -->
+          <div id="suggestionsResults" class="space-y-3">
+            <div class="bg-blue-50 rounded-lg p-3 text-center">
+              <p class="text-sm text-gray-600">
+                Nhấn "Phân tích" để nhận gợi ý cải thiện CV
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            Thao tác nhanh
+          </h3>
+          <div class="space-y-2">
+            <button
+              onclick="optimizeWithAI({{ cv.id }})"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+            >
+              <i class="fas fa-magic mr-2 text-purple-500"></i>Tối ưu với AI
+            </button>
+            <a
+              href="{{ url_for('cv.template_selector') }}?current={{ cv.id }}"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md block"
+            >
+              <i class="fas fa-palette mr-2 text-blue-500"></i>Đổi template
+            </a>
+            <button
+              onclick="showLanguageSelector()"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md block"
+            >
+              <i class="fa-solid fa-language mr-2 text-lime-500"></i>Chuyển Ngữ
+            </button>
+            <a
+              href="{{ url_for('cv.duplicate_cv', cv_id=cv.id) }}"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md block"
+            >
+              <i class="fas fa-copy mr-2 text-gray-500"></i>Tạo bản sao
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Preview Area -->
+    <div class="flex-1 bg-gray-100 relative overflow-hidden">
+      <div class="h-full flex items-center justify-center p-8">
+        <!-- Canvas Preview (Konva.js) -->
+        <div
+          id="cvCanvasPreview"
+          class="bg-white shadow-2xl transform transition-transform duration-300"
+          style="width: 595px; height: 842px; transform: scale(0.9)"
+        >
+          <div id="cvCanvas" style="width: 595px; height: 842px"></div>
+        </div>
+
+        <!-- Zoom Controls (Floating) -->
+        <div
+          class="absolute bottom-8 right-8 bg-white rounded-lg shadow-lg p-2"
+        >
+          <div class="flex items-center space-x-2">
+            <button
+              class="p-2 hover:bg-gray-100 rounded"
+              onclick="adjustZoom(-0.1)"
+            >
+              <i class="fas fa-minus text-gray-600"></i>
+            </button>
+            <span
+              class="text-sm font-medium text-gray-700 w-12 text-center"
+              id="zoomDisplay"
+              >90%</span
+            >
+            <button
+              class="p-2 hover:bg-gray-100 rounded"
+              onclick="adjustZoom(0.1)"
+            >
+              <i class="fas fa-plus text-gray-600"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Language Selection Modal -->
+<div
+  id="languageModal"
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center hidden"
+>
+  <div class="bg-white rounded-lg shadow-xl w-80 transform transition-all">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Chọn ngôn ngữ</h3>
+        <button
+          onclick="closeLanguageSelector()"
+          class="text-gray-500 hover:text-gray-700"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Language Options -->
+    <div class="px-6 py-4">
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          onclick="translateCV('vi', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-vn mr-2"></span>
+          <span>Vietnamese</span>
+        </button>
+        <button
+          onclick="translateCV('en', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-us mr-2"></span>
+          <span>English</span>
+        </button>
+        <button
+          onclick="translateCV('fr', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-fr mr-2"></span>
+          <span>French</span>
+        </button>
+        <button
+          onclick="translateCV('de', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-de mr-2"></span>
+          <span>German</span>
+        </button>
+        <button
+          onclick="translateCV('es', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-es mr-2"></span>
+          <span>Spanish</span>
+        </button>
+        <button
+          onclick="translateCV('ja', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-jp mr-2"></span>
+          <span>Japanese</span>
+        </button>
+        <button
+          onclick="translateCV('ko', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-kr mr-2"></span>
+          <span>Korean</span>
+        </button>
+        <button
+          onclick="translateCV('zh', {{ cv.id }})"
+          class="language-btn flex items-center px-3 py-2 border rounded-md hover:bg-blue-50"
+        >
+          <span class="fi fi-cn mr-2"></span>
+          <span>Chinese</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t text-right">
+      <button
+        onclick="closeLanguageSelector()"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+      >
+        Đóng
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Script to pass template data to Konva.js -->
+<script>
+  // Template data from backend (with safety check to ensure it can be parsed)
+  let templateData;
+  try {
+    templateData = {{ (cv.template_data if cv.template_data else {}) | tojson }};
+  } catch (error) {
+    console.error("Error parsing template data:", error);
+    templateData = {}; // Fallback to empty object
+  }
+
+  // Current zoom level
+  let currentZoom = 0.9;
+
+  // Initialize Konva stage
+  function initKonvaStage() {
+    // Check for valid template data in new format
+    if (!templateData || !templateData.children) {
+      console.warn('No valid template data available');
+      showNotification('Không có dữ liệu template hợp lệ', 'warning');
+      return;
+    }
+
+    try {
+      // Use Konva.Node.create() to directly create stage from JSON
+      const stage = Konva.Node.create(templateData, 'cvCanvas');
+
+      // Make sure the stage size is correct
+      stage.width(templateData.attrs?.width || 595);
+      stage.height(templateData.attrs?.height || 842);
+
+      // Draw the stage
+      stage.draw();
+
+      console.log('CV template rendered successfully with Konva.js');
+    } catch (error) {
+      console.error('Error creating Konva stage:', error);
+      showNotification('Có lỗi xảy ra khi hiển thị CV', 'error');
+    }
+  }
+
+  function adjustZoom(delta) {
+    currentZoom = Math.max(0.3, Math.min(1.5, currentZoom + delta));
+
+    const canvasPreview = document.getElementById('cvCanvasPreview');
+    canvasPreview.style.transform = `scale(${currentZoom})`;
+
+    const percentage = Math.round(currentZoom * 100);
+    document.getElementById('zoomDisplay').textContent = percentage + '%';
+    document.getElementById('zoomLevel').textContent = percentage + '%';
+  }
+
+  // Download menu toggle
+  document
+    .getElementById('downloadBtn')
+    .addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.getElementById('downloadMenu').classList.toggle('hidden');
+    });
+
+  // Edit menu toggle
+  document
+    .getElementById('editBtn')
+    .addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.getElementById('editMenu').classList.toggle('hidden');
+    });
+
+  document.addEventListener('click', function () {
+    document.getElementById('downloadMenu').classList.add('hidden');
+    document.getElementById('editMenu').classList.add('hidden');
+  });
+
+  // Zoom controls in header
+  document
+    .getElementById('zoomIn')
+    .addEventListener('click', () => adjustZoom(0.1));
+  document
+    .getElementById('zoomOut')
+    .addEventListener('click', () => adjustZoom(-0.1));
+
+  // Share CV function
+  function shareCV(cvId) {
+    // Create shareable URL
+    const shareUrl = window.location.origin + '/cv/' + cvId + '/preview';
+
+    // Try to use native share API if available
+    if (navigator.share) {
+      navigator.share({
+        title: 'CV - {{ cv.title }}',
+        text: 'Xem CV của tôi',
+        url: shareUrl
+      }).then(() => {
+        console.log('Chia sẻ thành công');
+      }).catch((error) => {
+        console.log('Lỗi khi chia sẻ:', error);
+        copyToClipboard(shareUrl);
+      });
+    } else {
+      // Fallback to copy to clipboard
+      copyToClipboard(shareUrl);
+    }
+  }
+
+  // Copy URL to clipboard
+  function copyToClipboard(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        showNotification('Đã sao chép link vào clipboard!', 'success');
+      }).catch(() => {
+        fallbackCopyToClipboard(text);
+      });
+    } else {
+      fallbackCopyToClipboard(text);
+    }
+  }
+
+  // Fallback copy method
+  function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      document.execCommand('copy');
+      showNotification('Đã sao chép link vào clipboard!', 'success');
+    } catch (err) {
+      showNotification('Không thể sao chép link. Vui lòng copy thủ công.', 'error');
+      console.error('Fallback: Could not copy text: ', err);
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  // Handle download with loading state
+  function handleDownload(event, cvId, format, dpi = null) {
+    event.preventDefault();
+
+    // Show loading state
+    const downloadBtn = document.getElementById('downloadBtn');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Đang tạo ${format.toUpperCase()}...`;
+    downloadBtn.disabled = true;
+
+    // Close download menu
+    document.getElementById('downloadMenu').classList.add('hidden');
+
+    // Create download URL based on format
+    let downloadUrl;
+    if (format === 'pdf') {
+      downloadUrl = `/cv/${cvId}/export-pdf`;
+    } else if (format === 'png') {
+      downloadUrl = `/cv/${cvId}/download?format=png`;
+      if (dpi) {
+        downloadUrl += `&dpi=${dpi}`;
+      }
+    } else {
+      downloadUrl = `/cv/${cvId}/download?format=${format}`;
+    }
+
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = ''; // Let the server determine filename
+    link.style.display = 'none';
+    document.body.appendChild(link);
+
+    // Add event listeners to handle download completion
+    let downloadCompleted = false;
+
+    // Set a timeout to restore button state
+    const timeout = setTimeout(() => {
+      if (!downloadCompleted) {
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+        showNotification(`Đã bắt đầu tải xuống ${format.toUpperCase()}!`, 'success');
+        downloadCompleted = true;
+      }
+    }, 2000);
+
+    // Handle potential errors
+    window.addEventListener('focus', function onFocus() {
+      setTimeout(() => {
+        if (!downloadCompleted) {
+          downloadBtn.innerHTML = originalText;
+          downloadBtn.disabled = false;
+          showNotification(`Tải xuống ${format.toUpperCase()} thành công!`, 'success');
+          downloadCompleted = true;
+          clearTimeout(timeout);
+        }
+        window.removeEventListener('focus', onFocus);
+      }, 1000);
+    });
+
+    // Trigger download
+    try {
+      link.click();
+    } catch (error) {
+      console.error('Download error:', error);
+      showNotification('Có lỗi xảy ra khi tải xuống. Vui lòng thử lại.', 'error');
+      downloadBtn.innerHTML = originalText;
+      downloadBtn.disabled = false;
+      downloadCompleted = true;
+      clearTimeout(timeout);
+    } finally {
+      document.body.removeChild(link);
+    }
+  }
+
+  // Alternative download function using fetch for better error handling
+  function handleDownloadWithFetch(event, cvId, format, dpi = null) {
+    event.preventDefault();
+
+    const downloadBtn = document.getElementById('downloadBtn');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Đang tạo ${format.toUpperCase()}...`;
+    downloadBtn.disabled = true;
+
+    document.getElementById('downloadMenu').classList.add('hidden');
+
+    // Create download URL
+    let downloadUrl;
+    if (format === 'pdf') {
+      downloadUrl = `/cv/${cvId}/export-pdf`;
+    } else {
+      downloadUrl = `/cv/${cvId}/download?format=${format}`;
+      if (dpi) {
+        downloadUrl += `&dpi=${dpi}`;
+      }
+    }
+
+    // Use fetch for better error handling
+    fetch(downloadUrl, {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+
+      // Get filename from response header or create default
+      const filename = `{{ cv.title }}_${cvId}.${format}`;
+      a.download = filename.replace(/[^a-zA-Z0-9._-]/g, '_'); // Sanitize filename
+
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showNotification(`Đã tải xuống ${format.toUpperCase()} thành công!`, 'success');
+    })
+    .catch(error => {
+      console.error('Download error:', error);
+      showNotification(`Có lỗi xảy ra khi tải xuống ${format.toUpperCase()}. Vui lòng thử lại.`, 'error');
+
+      // Fallback to direct navigation
+      window.open(downloadUrl, '_blank');
+    })
+    .finally(() => {
+      // Restore button state
+      setTimeout(() => {
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+      }, 1000);
+    });
+  }
+
+  // Show notification
+  function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-transform duration-300 translate-x-full`;
+
+    // Set color based on type
+    switch(type) {
+      case 'success':
+        notification.className += ' bg-green-500 text-white';
+        break;
+      case 'error':
+        notification.className += ' bg-red-500 text-white';
+        break;
+      case 'warning':
+        notification.className += ' bg-yellow-500 text-white';
+        break;
+      default:
+        notification.className += ' bg-blue-500 text-white';
+    }
+
+    notification.innerHTML = `
+      <div class="flex items-center">
+        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info'}-circle mr-2"></i>
+        <span>${message}</span>
+      </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full');
+    }, 100);
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+      notification.classList.add('translate-x-full');
+      setTimeout(() => {
+        if (notification.parentNode) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 5000);
+  }
+
+  // Analyze CV function
+  async function analyzeCV(cvId) {
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analysisLoading = document.getElementById('analysisLoading');
+    const analysisResults = document.getElementById('analysisResults');
+    const suggestionsLoading = document.getElementById('suggestionsLoading');
+    const suggestionsResults = document.getElementById('suggestionsResults');
+
+    // Show loading states
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Đang phân tích...';
+
+    analysisLoading.classList.remove('hidden');
+    analysisResults.classList.add('hidden');
+    suggestionsLoading.classList.remove('hidden');
+
+    try {
+      const response = await fetch(`/cv/api/analyze-cv/${cvId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update analysis results
+        updateAnalysisUI(data.analysis);
+        updateSuggestionsUI(data.suggestions);
+
+        showNotification('Phân tích CV hoàn tất!', 'success');
+      } else {
+        throw new Error(data.error || 'Có lỗi xảy ra khi phân tích CV');
+      }
+    } catch (error) {
+      console.error('Analysis error:', error);
+      showNotification(error.message || 'Có lỗi xảy ra khi phân tích CV', 'error');
+
+      // Show error state
+      analysisResults.innerHTML = `
+        <div class="bg-red-50 rounded-lg p-4 text-center">
+          <i class="fas fa-exclamation-triangle text-red-400 text-xl mb-2"></i>
+          <p class="text-sm text-red-600">Có lỗi xảy ra khi phân tích CV. Vui lòng thử lại.</p>
+          <p class="text-xs text-red-500 mt-1">${error.message}</p>
+        </div>
+      `;
+
+      suggestionsResults.innerHTML = `
+        <div class="bg-red-50 rounded-lg p-3 text-center">
+          <p class="text-sm text-red-600">Không thể tạo gợi ý. Vui lòng thử lại.</p>
+        </div>
+      `;
+    } finally {
+      // Hide loading states
+      analysisLoading.classList.add('hidden');
+      suggestionsLoading.classList.add('hidden');
+      analysisResults.classList.remove('hidden');
+
+      // Restore button
+      analyzeBtn.disabled = false;
+      analyzeBtn.innerHTML = '<i class="fas fa-chart-bar mr-1"></i>Phân tích lại';
+    }
+  }
+
+  // Update analysis UI
+  function updateAnalysisUI(analysis) {
+    const overallScore = document.getElementById('overallScore');
+    const overallProgressBar = document.getElementById('overallProgressBar');
+    const overallFeedback = document.getElementById('overallFeedback');
+    const scoreBreakdown = document.getElementById('scoreBreakdown');
+
+    // Ensure analysis object has all required properties
+    const safeAnalysis = {
+      overall_score: analysis.overall_score || 0,
+      personal_info_score: analysis.personal_info_score || 0,
+      experience_score: analysis.experience_score || 0,
+      skills_score: analysis.skills_score || 0,
+      education_score: analysis.education_score || 0,
+      ai_feedback: analysis.ai_feedback || 'Chưa có phản hồi từ AI',
+      strengths: analysis.strengths || [],
+      weaknesses: analysis.weaknesses || []
+    };
+
+    // Update overall score
+    overallScore.textContent = `${Math.round(safeAnalysis.overall_score)}/100`;
+    overallProgressBar.style.width = `${safeAnalysis.overall_score}%`;
+
+    // Update score color based on value
+    const scoreClass = safeAnalysis.overall_score >= 80 ? 'text-green-600' :
+                      safeAnalysis.overall_score >= 60 ? 'text-yellow-600' : 'text-red-600';
+    overallScore.className = `text-2xl font-bold ${scoreClass}`;
+
+    // Update progress bar color
+    const progressClass = safeAnalysis.overall_score >= 80 ? 'bg-gradient-to-r from-green-400 to-blue-500' :
+                         safeAnalysis.overall_score >= 60 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                         'bg-gradient-to-r from-red-400 to-pink-500';
+    overallProgressBar.className = `h-2 rounded-full ${progressClass}`;
+
+    // Update feedback - use AI feedback if available
+    let feedbackText = safeAnalysis.ai_feedback;
+    if (!feedbackText || feedbackText === 'Chưa có phản hồi từ AI') {
+      feedbackText = safeAnalysis.overall_score >= 80 ?
+        'CV của bạn có chất lượng tốt và phù hợp với yêu cầu tuyển dụng' :
+        safeAnalysis.overall_score >= 60 ?
+        'CV đã khá tốt nhưng vẫn có thể cải thiện thêm' :
+        'CV cần được bổ sung thêm thông tin để tăng tính chuyên nghiệp';
+    }
+    overallFeedback.textContent = feedbackText;
+
+    // Update score breakdown
+    const scores = [
+      { name: 'Thông tin cá nhân', score: safeAnalysis.personal_info_score },
+      { name: 'Kinh nghiệm', score: safeAnalysis.experience_score },
+      { name: 'Kỹ năng', score: safeAnalysis.skills_score },
+      { name: 'Học vấn', score: safeAnalysis.education_score }
+    ];
+
+    scoreBreakdown.innerHTML = scores.map(item => {
+      const colorClass = item.score >= 80 ? 'bg-green-400' :
+                        item.score >= 60 ? 'bg-yellow-400' : 'bg-red-400';
+      const textColorClass = item.score >= 80 ? 'text-green-600' :
+                            item.score >= 60 ? 'text-yellow-600' : 'text-red-600';
+
+      return `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-3 h-3 ${colorClass} rounded-full mr-2"></div>
+            <span class="text-sm text-gray-700">${item.name}</span>
+          </div>
+          <span class="text-sm font-medium ${textColorClass}">${Math.round(item.score)}%</span>
+        </div>
+      `;
+    }).join('');
+
+    // Add strengths and weaknesses display if available
+    if (safeAnalysis.strengths.length > 0 || safeAnalysis.weaknesses.length > 0) {
+      const strengthsWeaknessesHTML = `
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          ${safeAnalysis.strengths.length > 0 ? `
+            <div class="mb-3">
+              <h4 class="text-sm font-medium text-green-700 mb-2">
+                <i class="fas fa-check-circle mr-1"></i>Điểm mạnh:
+              </h4>
+              <ul class="text-xs text-green-600 space-y-1">
+                ${safeAnalysis.strengths.map(strength => `<li>• ${strength}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+          ${safeAnalysis.weaknesses.length > 0 ? `
+            <div>
+              <h4 class="text-sm font-medium text-red-700 mb-2">
+                <i class="fas fa-exclamation-triangle mr-1"></i>Cần cải thiện:
+              </h4>
+              <ul class="text-xs text-red-600 space-y-1">
+                ${safeAnalysis.weaknesses.map(weakness => `<li>• ${weakness}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      scoreBreakdown.innerHTML += strengthsWeaknessesHTML;
+    }
+  }
+
+  // Update suggestions UI
+  function updateSuggestionsUI(suggestions) {
+    const suggestionsResults = document.getElementById('suggestionsResults');
+
+    if (!suggestions || suggestions.length === 0) {
+      suggestionsResults.innerHTML = `
+        <div class="bg-green-50 rounded-lg p-3 text-center">
+          <i class="fas fa-check-circle text-green-500 mr-2"></i>
+          <span class="text-sm text-green-700">CV của bạn đã khá hoàn thiện!</span>
+        </div>
+      `;
+      return;
+    }
+
+    suggestionsResults.innerHTML = suggestions.map((suggestion, index) => {
+      // Ensure suggestion object has all required properties
+      const safeSuggestion = {
+        type: suggestion.type || 'info',
+        icon: suggestion.icon || 'fas fa-lightbulb',
+        title: suggestion.title || `Gợi ý ${index + 1}`,
+        description: suggestion.description || 'Không có mô tả'
+      };
+
+      const bgColorClass = safeSuggestion.type === 'warning' ? 'bg-yellow-50' :
+                          safeSuggestion.type === 'success' ? 'bg-green-50' :
+                          safeSuggestion.type === 'error' ? 'bg-red-50' : 'bg-blue-50';
+
+      const iconColorClass = safeSuggestion.type === 'warning' ? 'text-yellow-500' :
+                            safeSuggestion.type === 'success' ? 'text-green-500' :
+                            safeSuggestion.type === 'error' ? 'text-red-500' : 'text-blue-500';
+
+      return `
+        <div class="flex items-start space-x-3 p-3 ${bgColorClass} rounded-lg">
+          <i class="${safeSuggestion.icon} ${iconColorClass} mt-0.5"></i>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-gray-900">${safeSuggestion.title}</p>
+            <p class="text-xs text-gray-600 mt-1">${safeSuggestion.description}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Enhanced optimize with AI function
+  function optimizeWithAI(cvId) {
+    // First analyze the CV using AI
+    showNotification('Bắt đầu phân tích CV với AI...', 'info');
+
+    analyzeCV(cvId).then(() => {
+      showNotification('Phân tích hoàn tất! Hãy xem các gợi ý cải thiện bên dưới.', 'success');
+
+      // Scroll to suggestions section
+      const suggestionsSection = document.getElementById('suggestionsSection');
+      if (suggestionsSection) {
+        suggestionsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }).catch(() => {
+      showNotification('Không thể phân tích CV. Vui lòng thử lại.', 'error');
+    });
+  }
+
+  // Auto-analyze CV on page load if user wants
+  function autoAnalyzeOnLoad() {
+    // Check if user preference is set for auto-analysis
+    const autoAnalyze = localStorage.getItem('autoAnalyzeCV');
+    if (autoAnalyze === 'true') {
+      setTimeout(() => {
+        analyzeCV({{ cv.id }});
+      }, 2000); // Wait 2 seconds after page load
+    }
+  }
+
+  // Add auto-analyze toggle functionality
+  function toggleAutoAnalyze() {
+    const currentSetting = localStorage.getItem('autoAnalyzeCV') === 'true';
+    localStorage.setItem('autoAnalyzeCV', (!currentSetting).toString());
+    showNotification(
+      `Tự động phân tích CV đã được ${!currentSetting ? 'bật' : 'tắt'}`,
+      'info'
+    );
+  }
+
+  // Language selection functions
+  function showLanguageSelector() {
+    document.getElementById('languageModal').classList.remove('hidden');
+  }
+
+  function closeLanguageSelector() {
+    document.getElementById('languageModal').classList.add('hidden');
+  }
+
+  function translateCV(language, cvId) {
+    // Show loading state
+    const languageModal = document.getElementById('languageModal');
+    languageModal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl w-80 p-6 text-center">
+        <i class="fas fa-spinner fa-spin text-blue-500 text-3xl mb-4"></i>
+        <p class="text-gray-700">Đang dịch CV sang ${getLanguageName(language)}...</p>
+        <p class="text-gray-500 text-sm mt-3">Vui lòng đợi trong giây lát</p>
+      </div>
+    `;
+
+    // Make API request to translate CV
+    fetch(`/cv/api/translate-cv/${cvId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ target_language: language })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        // Show success message
+        languageModal.innerHTML = `
+          <div class="bg-white rounded-lg shadow-xl w-80 p-6 text-center">
+            <i class="fas fa-check-circle text-green-500 text-3xl mb-4"></i>
+            <p class="text-gray-700">Dịch CV sang ${getLanguageName(language)} thành công!</p>
+            <div class="mt-6">
+              <a href="${data.redirect_url}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                Xem kết quả
+              </a>
+            </div>
+          </div>
+        `;
+
+        // Optional: Redirect to the new CV after a short delay
+        setTimeout(() => {
+          window.location.href = data.redirect_url;
+        }, 2000);
+      } else {
+        throw new Error(data.error || 'Translation failed');
+      }
+    })
+    .catch(error => {
+      console.error('Translation error:', error);
+
+      // Show error message
+      languageModal.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl w-80 p-6 text-center">
+          <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-4"></i>
+          <p class="text-gray-700">Không thể dịch CV. Vui lòng thử lại.</p>
+          <p class="text-gray-500 text-sm mt-2">${error.message}</p>
+          <div class="mt-6">
+            <button onclick="closeLanguageSelector()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+              Đóng
+            </button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // Helper function to get language name
+  function getLanguageName(code) {
+    const languages = {
+      'vi': 'Vietnamese',
+      'en': 'English',
+      'fr': 'French',
+      'de': 'German',
+      'es': 'Spanish',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+      'zh': 'Chinese'
+    };
+    return languages[code] || code;
+  }
+
+  // Close modal when clicking outside
+  document.getElementById('languageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeLanguageSelector();
+    }
+  });
+
+  // Initialize on document load
+  document.addEventListener('DOMContentLoaded', function() {
+    initKonvaStage();
+    // Optionally auto-analyze if user preference is set
+    // autoAnalyzeOnLoad();
+
+    // Add flag icons stylesheet
+    const linkElement = document.createElement('link');
+    linkElement.rel = 'stylesheet';
+    linkElement.href = 'https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css';
+    document.head.appendChild(linkElement);
+
+    // Add some additional styling for language buttons
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      .language-btn {
+        transition: all 0.2s;
+      }
+      .language-btn:hover {
+        transform: translateY(-2px);
+        border-color: #3b82f6;
+      }
+      .fi {
+        border-radius: 2px;
+      }
+    `;
+    document.head.appendChild(styleElement);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,715 @@
+{
+  "template_data": {
+    "attrs": {
+      "width": 595,
+      "height": 842
+    },
+    "className": "Stage",
+    "children": [
+      {
+        "attrs": {},
+        "className": "Layer",
+        "children": [
+          {
+            "attrs": {
+              "width": 595,
+              "height": 120,
+              "fill": "#10B981",
+              "strokeWidth": 0,
+              "id": "header_bg"
+            },
+            "className": "Rect"
+          }
+        ]
+      },
+      {
+        "attrs": {},
+        "className": "Layer",
+        "children": [
+          {
+            "attrs": {
+              "x": 40,
+              "y": 170,
+              "width": 4,
+              "height": 60,
+              "fill": "#10B981",
+              "strokeWidth": 0,
+              "id": "summary_border"
+            },
+            "className": "Rect"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 280,
+              "width": 4,
+              "height": 160,
+              "fill": "#10B981",
+              "strokeWidth": 0,
+              "id": "experience_border"
+            },
+            "className": "Rect"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 490,
+              "width": 4,
+              "height": 100,
+              "fill": "#10B981",
+              "strokeWidth": 0,
+              "id": "skills_border"
+            },
+            "className": "Rect"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 620,
+              "width": 4,
+              "height": 120,
+              "fill": "#10B981",
+              "strokeWidth": 0,
+              "id": "education_border"
+            },
+            "className": "Rect"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 770,
+              "width": 4,
+              "height": 60,
+              "fill": "#10B981",
+              "strokeWidth": 0,
+              "id": "languages_border"
+            },
+            "className": "Rect"
+          }
+        ]
+      },
+      {
+        "attrs": {},
+        "className": "Layer",
+        "children": [
+          {
+            "attrs": {
+              "x": 40,
+              "y": 25,
+              "text": {
+                "name": "Nguyen Van A"
+              },
+              "fontSize": 28,
+              "fontStyle": "bold",
+              "fill": "#FFFFFF",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "full_name"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 65,
+              "text": {
+                "title": "Frontend Developer"
+              },
+              "fontSize": 16,
+              "fill": "#E5E7EB",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "position"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 30,
+              "text": {
+                "email": "✉ nguyenvana@email.com"
+              },
+              "fontSize": 11,
+              "fill": "#FFFFFF",
+              "width": 150,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "email"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 50,
+              "text": {
+                "phone": "📞 0987654321"
+              },
+              "fontSize": 11,
+              "fill": "#FFFFFF",
+              "width": 150,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "phone"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 70,
+              "text": {
+                "location": "📍 District 1, Ho Chi Minh City"
+              },
+              "fontSize": 11,
+              "fill": "#FFFFFF",
+              "width": 150,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "address"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 150,
+              "text": {
+                "section": "SELF-DESCRIPTION"
+              },
+              "fontSize": 14,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 515,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "summary_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 175,
+              "text": {
+                "description": "I am a Frontend Developer with 2 years of experience in developing modern web applications. Passionate about technology and always learning new techniques to create the best quality products."
+              },
+              "fontSize": 11,
+              "fill": "#4B5563",
+              "width": 500,
+              "height": 50,
+              "lineHeight": 1.2,
+              "id": "summary"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 260,
+              "text": {
+                "section": "WORK EXPERIENCE"
+              },
+              "fontSize": 14,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 515,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "experience_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 285,
+              "text": {
+                "position": "Junior Frontend Developer"
+              },
+              "fontSize": 12,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "exp1_position"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 305,
+              "text": {
+                "company": "FPT Software"
+              },
+              "fontSize": 11,
+              "fill": "#10B981",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "exp1_company"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 285,
+              "text": {
+                "time": "2023-07 - "
+              },
+              "fontSize": 10,
+              "fill": "#6B7280",
+              "width": 135,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "exp1_date"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 75,
+              "y": 325,
+              "text": {
+                "responsibilities": "- Developed responsive web interfaces with React.js and Tailwind CSS\r\n- Optimized website performance, reducing download time by 40%\r\n- Collaborated with the backend team to integrate APIs"
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 480,
+              "height": 40,
+              "lineHeight": 1.2,
+              "id": "exp1_description"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 375,
+              "text": "",
+              "fontSize": 12,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "exp2_position"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 395,
+              "text": "",
+              "fontSize": 11,
+              "fill": "#10B981",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "exp2_company"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 375,
+              "text": {
+                "position": " - "
+              },
+              "fontSize": 10,
+              "fill": "#6B7280",
+              "width": 135,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "exp2_date"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 75,
+              "y": 415,
+              "text": "",
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 480,
+              "height": 40,
+              "lineHeight": 1.2,
+              "id": "exp2_description"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 470,
+              "text": {
+                "section": "SKILLS"
+              },
+              "fontSize": 14,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 515,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "skills_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 495,
+              "text": {
+                "subsection": "Technical Skills"
+              },
+              "fontSize": 12,
+              "fontStyle": "bold",
+              "fill": "#374151",
+              "width": 250,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "tech_skills_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 320,
+              "y": 495,
+              "text": {
+                "subsection": "Soft Skills"
+              },
+              "fontSize": 12,
+              "fontStyle": "bold",
+              "fill": "#374151",
+              "width": 235,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "soft_skills_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 515,
+              "text": {
+                "skill": "• JavaScript"
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 250,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "tech_skill_1"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 530,
+              "text": {
+                "skill": "• React.js"
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 250,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "tech_skill_2"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 545,
+              "text": {
+                "skill": "• "
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 250,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "tech_skill_3"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 320,
+              "y": 515,
+              "text": {
+                "skill": "• Teamwork"
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 235,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "soft_skill_1"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 320,
+              "y": 530,
+              "text": {
+                "skill": "• Communication"
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 235,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "soft_skill_2"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 320,
+              "y": 545,
+              "text": {
+                "skill": "• "
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 235,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "soft_skill_3"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 600,
+              "text": {
+                "section": "EDUCATION"
+              },
+              "fontSize": 14,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 515,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "education_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 625,
+              "text": {
+                "major": "Computer Science"
+              },
+              "fontSize": 12,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "edu1_degree"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 645,
+              "text": {
+                "university": "Ho Chi Minh City University of Technology"
+              },
+              "fontSize": 11,
+              "fill": "#10B981",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "edu1_school"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 625,
+              "text": {
+                "time": "2019-09 - 2023-06"
+              },
+              "fontSize": 10,
+              "fill": "#6B7280",
+              "width": 135,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "edu1_date"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 75,
+              "y": 665,
+              "text": {
+                "gpa": "GPA: 3.5/4.0. Graduated with Good standing."
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 480,
+              "height": 30,
+              "lineHeight": 1.2,
+              "id": "edu1_description"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 705,
+              "text": "",
+              "fontSize": 12,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "edu2_degree"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 725,
+              "text": "",
+              "fontSize": 11,
+              "fill": "#10B981",
+              "width": 350,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "edu2_school"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 420,
+              "y": 705,
+              "text": {
+                "position": " - "
+              },
+              "fontSize": 10,
+              "fill": "#6B7280",
+              "width": 135,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "edu2_date"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 40,
+              "y": 750,
+              "text": {
+                "section": "LANGUAGES"
+              },
+              "fontSize": 14,
+              "fontStyle": "bold",
+              "fill": "#1F2937",
+              "width": 515,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "languages_title"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 55,
+              "y": 775,
+              "text": {
+                "language": "• English"
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 250,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "language_1"
+            },
+            "className": "Text"
+          },
+          {
+            "attrs": {
+              "x": 320,
+              "y": 775,
+              "text": {
+                "language": "• "
+              },
+              "fontSize": 10,
+              "fill": "#4B5563",
+              "width": 235,
+              "wrap": "none",
+              "lineHeight": 1.2,
+              "id": "language_2"
+            },
+            "className": "Text"
+          }
+        ]
+      }
+    ]
+  },
+  "form_data": {
+    "full_name": "Nguyễn Văn A",
+    "position": "Frontend Developer",
+    "email": "nguyenvana@email.com",
+    "phone": "0987654321",
+    "address": "Quận 1, TP.HCM",
+    "website": "",
+    "summary": "Tôi là một Frontend Developer với 2 năm kinh nghiệm phát triển ứng dụng web hiện đại. Đam mê công nghệ và luôn học hỏi những kỹ thuật mới để tạo ra những sản phẩm chất lượng tốt nhất.",
+    "experience": [
+      {
+        "company": "FPT Software",
+        "position": "Junior Frontend Developer",
+        "start_date": "2023-07",
+        "end_date": "",
+        "description": "- Phát triển giao diện web responsive với React.js và Tailwind CSS\r\n- Tối ưu hiệu suất website, giảm thời gian tải xuống 40%\r\n- Hợp tác với team backend để tích hợp API"
+      }
+    ],
+    "education": [
+      {
+        "school": "Đại học Bách Khoa TP.HCM",
+        "degree": "Khoa học máy tính",
+        "start_date": "2019-09",
+        "end_date": "2023-06",
+        "description": "GPA: 3.5/4.0. Tốt nghiệp loại Khá."
+      }
+    ],
+    "technical_skills": [
+      "JavaScript",
+      "React.js"
+    ],
+    "soft_skills": [
+      "Làm việc nhóm",
+      "Giao tiếp"
+    ],
+    "languages": [
+      "Tiếng Anh"
+    ]
+  }
+}

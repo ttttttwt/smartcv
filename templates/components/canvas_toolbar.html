@@ -1,0 +1,149 @@
+<div class="canvas-toolbar">
+  <!-- Toolbar Header -->
+  <div class="toolbar-header">
+    <h3 class="toolbar-title">
+      <i class="fas fa-tools mr-2"></i>
+      Công cụ thiết kế
+    </h3>
+    <p class="text-sm text-blue-100 mt-1">Kéo thả để thêm element</p>
+  </div>
+
+  <!-- Text Elements Section -->
+  <div class="toolbar-section">
+    <h4 class="section-title">
+      <i class="fas fa-font mr-2"></i>
+      Văn bản
+    </h4>
+    <div class="element-buttons">
+      <button class="element-btn" data-type="heading" title="Thêm tiêu đề">
+        <i class="fas fa-heading"></i>
+        <span>Tiêu đề</span>
+      </button>
+      <button class="element-btn" data-type="text" title="Thêm văn bản">
+        <i class="fas fa-font"></i>
+        <span>Văn bản</span>
+      </button>
+      <button class="element-btn" data-type="paragraph" title="Thêm đoạn văn">
+        <i class="fas fa-paragraph"></i>
+        <span>Đoạn văn</span>
+      </button>
+      <button class="element-btn" data-type="list" title="Thêm danh sách">
+        <i class="fas fa-list"></i>
+        <span>Danh sách</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Visual Elements Section -->
+  <div class="toolbar-section">
+    <h4 class="section-title">
+      <i class="fas fa-image mr-2"></i>
+      Hình ảnh & Hình học
+    </h4>
+    <div class="element-buttons">
+      <button class="element-btn" data-type="image" title="Thêm hình ảnh">
+        <i class="fas fa-image"></i>
+        <span>Hình ảnh</span>
+      </button>
+      <button class="element-btn" data-type="avatar" title="Thêm ảnh đại diện">
+        <i class="fas fa-user-circle"></i>
+        <span>Avatar</span>
+      </button>
+      <button
+        class="element-btn"
+        data-type="rectangle"
+        title="Thêm hình chữ nhật"
+      >
+        <i class="fas fa-square"></i>
+        <span>Hình chữ nhật</span>
+      </button>
+      <button class="element-btn" data-type="circle" title="Thêm hình tròn">
+        <i class="fas fa-circle"></i>
+        <span>Hình tròn</span>
+      </button>
+      <button class="element-btn" data-type="line" title="Thêm đường thẳng">
+        <i class="fas fa-grip-lines"></i>
+        <span>Đường thẳng</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Design Elements -->
+  <div class="toolbar-section">
+    <h4 class="section-title">
+      <i class="fas fa-palette mr-2"></i>
+      Thiết kế
+    </h4>
+    <div class="element-buttons">
+      <button class="element-btn" data-type="icon" title="Thêm biểu tượng">
+        <i class="fas fa-star"></i>
+        <span>Biểu tượng</span>
+      </button>
+      <button
+        class="element-btn"
+        data-type="progress-bar"
+        title="Thanh tiến độ"
+      >
+        <i class="fas fa-chart-line"></i>
+        <span>Thanh tiến độ</span>
+      </button>
+      <button class="element-btn" data-type="rating" title="Đánh giá sao">
+        <i class="fas fa-star-half-alt"></i>
+        <span>Đánh giá</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .element-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .element-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #495057;
+    text-align: left;
+  }
+
+  .element-btn:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  }
+
+  .element-btn i {
+    margin-right: 12px;
+    font-size: 16px;
+    color: #667eea;
+    width: 20px;
+    text-align: center;
+  }
+
+  .element-btn span {
+    font-weight: 500;
+  }
+
+  .action-buttons button {
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .action-buttons button:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+  }
+</style>

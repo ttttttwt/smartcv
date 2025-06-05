@@ -1,0 +1,11 @@
+flask
+flask-smorest
+python-dotenv
+sqlalchemy
+flask-sqlalchemy
+flask-migrate
+google-genai
+Flask-Login
+reportlab
+Pillow
+pymupdf

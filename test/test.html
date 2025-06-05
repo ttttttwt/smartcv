@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart CV - Konva.js Canvas</title>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        #container {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            width: fit-content;
+        }
+        #controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #exportBtn {
+            background-color: #3B82F6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        #exportBtn:hover {
+            background-color: #2563EB;
+        }
+        #jsonOutput {
+            display: none;
+            margin-top: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #jsonTextarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button id="exportBtn">Export Canvas as JSON</button>
+    </div>
+    
+    <div id="container"></div>
+
+    <div id="jsonOutput">
+        <h3>Exported JSON:</h3>
+        <textarea id="jsonTextarea" readonly></textarea>
+        <br><br>
+        <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        <button onclick="downloadJSON()">Download as File</button>
+    </div>
+
+    <script>
+        // JSON data from the file
+        const jsonData = {
+            "template_data": {
+                "stage": {
+                    "width": 595,
+                    "height": 842
+                },
+                "settings": {
+                    "gridEnabled": true,
+                    "gridSize": 20
+                },
+                "elements": [
+                    {
+                        "id": "header_bg",
+                        "type": "rectangle",
+                        "attrs": {
+                            "x": 0,
+                            "y": 0,
+                            "width": 595,
+                            "height": 120,
+                            "fill": "#3B82F6",
+                            "stroke": "",
+                            "strokeWidth": 0
+                        },
+                        "properties": {
+                            "layer": "background"
+                        }
+                    },
+                    {
+                        "id": "full_name",
+                        "type": "heading",
+                        "attrs": {
+                            "x": 40,
+                            "y": 25,
+                            "text": "Nguyễn Văn A",
+                            "fontSize": 28,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#FFFFFF",
+                            "width": 350
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "full_name"
+                        }
+                    },
+                    {
+                        "id": "position",
+                        "type": "text",
+                        "attrs": {
+                            "x": 40,
+                            "y": 65,
+                            "text": "Frontend Developer",
+                            "fontSize": 16,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#E5E7EB",
+                            "width": 350
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "position"
+                        }
+                    },
+                    {
+                        "id": "email",
+                        "type": "text",
+                        "attrs": {
+                            "x": 420,
+                            "y": 30,
+                            "text": "✉ nguyenvana@email.com",
+                            "fontSize": 11,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#FFFFFF",
+                            "width": 150
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "email"
+                        }
+                    },
+                    {
+                        "id": "phone",
+                        "type": "text",
+                        "attrs": {
+                            "x": 420,
+                            "y": 50,
+                            "text": "📞 0987654321",
+                            "fontSize": 11,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#FFFFFF",
+                            "width": 150
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "phone"
+                        }
+                    },
+                    {
+                        "id": "address",
+                        "type": "text",
+                        "attrs": {
+                            "x": 420,
+                            "y": 70,
+                            "text": "📍 Quận 1, TP.HCM",
+                            "fontSize": 11,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#FFFFFF",
+                            "width": 150
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "address"
+                        }
+                    },
+                    {
+                        "id": "summary_title",
+                        "type": "heading",
+                        "attrs": {
+                            "x": 40,
+                            "y": 150,
+                            "text": "MÔ TẢ BẢN THÂN",
+                            "fontSize": 14,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#1F2937",
+                            "width": 515
+                        },
+                        "properties": {
+                            "editable": false
+                        }
+                    },
+                    {
+                        "id": "summary_border",
+                        "type": "rectangle",
+                        "attrs": {
+                            "x": 40,
+                            "y": 170,
+                            "width": 4,
+                            "height": 60,
+                            "fill": "#3B82F6",
+                            "stroke": "",
+                            "strokeWidth": 0
+                        },
+                        "properties": {
+                            "layer": "decoration"
+                        }
+                    },
+                    {
+                        "id": "summary",
+                        "type": "text",
+                        "attrs": {
+                            "x": 55,
+                            "y": 175,
+                            "text": "Tôi là một Frontend Developer với 2 năm kinh nghiệm phát triển ứng dụng web hiện đại. Đam mê công nghệ và luôn học hỏi những kỹ thuật mới để tạo ra những sản phẩm chất lượng tốt nhất.",
+                            "fontSize": 11,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#4B5563",
+                            "width": 500,
+                            "height": 50
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "summary",
+                            "multiline": true
+                        }
+                    },
+                    {
+                        "id": "experience_title",
+                        "type": "heading",
+                        "attrs": {
+                            "x": 40,
+                            "y": 260,
+                            "text": "KINH NGHIỆM LÀM VIỆC",
+                            "fontSize": 14,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#1F2937",
+                            "width": 515
+                        },
+                        "properties": {
+                            "editable": false
+                        }
+                    },
+                    {
+                        "id": "experience_border",
+                        "type": "rectangle",
+                        "attrs": {
+                            "x": 40,
+                            "y": 280,
+                            "width": 4,
+                            "height": 120,
+                            "fill": "#3B82F6",
+                            "stroke": "",
+                            "strokeWidth": 0
+                        },
+                        "properties": {
+                            "layer": "decoration"
+                        }
+                    },
+                    {
+                        "id": "exp1_position",
+                        "type": "text",
+                        "attrs": {
+                            "x": 55,
+                            "y": 285,
+                            "text": "Junior Frontend Developer",
+                            "fontSize": 12,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#1F2937",
+                            "width": 350
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "experience[0].position"
+                        }
+                    },
+                    {
+                        "id": "exp1_company",
+                        "type": "text",
+                        "attrs": {
+                            "x": 55,
+                            "y": 305,
+                            "text": "FPT Software",
+                            "fontSize": 11,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#3B82F6",
+                            "width": 350
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "experience[0].company"
+                        }
+                    },
+                    {
+                        "id": "exp1_date",
+                        "type": "text",
+                        "attrs": {
+                            "x": 420,
+                            "y": 285,
+                            "text": "2023-07 - ",
+                            "fontSize": 10,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#6B7280",
+                            "width": 135
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "experience[0].dates"
+                        }
+                    },
+                    {
+                        "id": "exp1_description",
+                        "type": "text",
+                        "attrs": {
+                            "x": 75,
+                            "y": 325,
+                            "text": "- Phát triển giao diện web responsive với React.js và Tailwind CSS\r\n- Tối ưu hiệu suất website, giảm thời gian tải xuống 40%\r\n- Hợp tác với team backend để tích hợp API",
+                            "fontSize": 10,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#4B5563",
+                            "width": 480,
+                            "height": 40
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "experience[0].description",
+                            "multiline": true
+                        }
+                    },
+                    {
+                        "id": "skills_title",
+                        "type": "heading",
+                        "attrs": {
+                            "x": 40,
+                            "y": 430,
+                            "text": "KỸ NĂNG",
+                            "fontSize": 14,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#1F2937",
+                            "width": 515
+                        },
+                        "properties": {
+                            "editable": false
+                        }
+                    },
+                    {
+                        "id": "skills_border",
+                        "type": "rectangle",
+                        "attrs": {
+                            "x": 40,
+                            "y": 450,
+                            "width": 4,
+                            "height": 100,
+                            "fill": "#3B82F6",
+                            "stroke": "",
+                            "strokeWidth": 0
+                        },
+                        "properties": {
+                            "layer": "decoration"
+                        }
+                    },
+                    {
+                        "id": "tech_skills_title",
+                        "type": "text",
+                        "attrs": {
+                            "x": 55,
+                            "y": 455,
+                            "text": "Kỹ năng chuyên môn",
+                            "fontSize": 12,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#374151",
+                            "width": 250
+                        },
+                        "properties": {
+                            "editable": false
+                        }
+                    },
+                    {
+                        "id": "soft_skills_title",
+                        "type": "text",
+                        "attrs": {
+                            "x": 320,
+                            "y": 455,
+                            "text": "Kỹ năng mềm",
+                            "fontSize": 12,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#374151",
+                            "width": 235
+                        },
+                        "properties": {
+                            "editable": false
+                        }
+                    },
+                    {
+                        "id": "education_title",
+                        "type": "heading",
+                        "attrs": {
+                            "x": 40,
+                            "y": 580,
+                            "text": "HỌC VẤN",
+                            "fontSize": 14,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#1F2937",
+                            "width": 515
+                        },
+                        "properties": {
+                            "editable": false
+                        }
+                    },
+                    {
+                        "id": "education_border",
+                        "type": "rectangle",
+                        "attrs": {
+                            "x": 40,
+                            "y": 600,
+                            "width": 4,
+                            "height": 80,
+                            "fill": "#3B82F6",
+                            "stroke": "",
+                            "strokeWidth": 0
+                        },
+                        "properties": {
+                            "layer": "decoration"
+                        }
+                    },
+                    {
+                        "id": "edu1_degree",
+                        "type": "text",
+                        "attrs": {
+                            "x": 55,
+                            "y": 605,
+                            "text": "Khoa học máy tính",
+                            "fontSize": 12,
+                            "fontFamily": "Arial",
+                            "fontStyle": "bold",
+                            "fill": "#1F2937",
+                            "width": 350
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "education[0].degree"
+                        }
+                    },
+                    {
+                        "id": "edu1_school",
+                        "type": "text",
+                        "attrs": {
+                            "x": 55,
+                            "y": 625,
+                            "text": "Đại học Bách Khoa TP.HCM",
+                            "fontSize": 11,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#3B82F6",
+                            "width": 350
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "education[0].school"
+                        }
+                    },
+                    {
+                        "id": "edu1_date",
+                        "type": "text",
+                        "attrs": {
+                            "x": 420,
+                            "y": 605,
+                            "text": "2019-09 - 2023-06",
+                            "fontSize": 10,
+                            "fontFamily": "Arial",
+                            "fontStyle": "normal",
+                            "fill": "#6B7280",
+                            "width": 135
+                        },
+                        "properties": {
+                            "editable": true,
+                            "field": "education[0].dates"
+                        }
+                    }
+                ]
+            }
+        };
+
+        // Initialize Konva stage
+        const stage = new Konva.Stage({
+            container: 'container',
+            width: jsonData.template_data.stage.width,
+            height: jsonData.template_data.stage.height
+        });
+
+        // Create layers
+        const backgroundLayer = new Konva.Layer();
+        const decorationLayer = new Konva.Layer();
+        const contentLayer = new Konva.Layer();
+
+        // Function to create Konva elements from JSON
+        function createElement(elementData) {
+            const { type, attrs, properties } = elementData;
+            let element;
+
+            switch (type) {
+                case 'rectangle':
+                    element = new Konva.Rect({
+                        x: attrs.x,
+                        y: attrs.y,
+                        width: attrs.width,
+                        height: attrs.height,
+                        fill: attrs.fill,
+                        stroke: attrs.stroke || undefined,
+                        strokeWidth: attrs.strokeWidth || 0
+                    });
+                    break;
+
+                case 'text':
+                case 'heading':
+                    element = new Konva.Text({
+                        x: attrs.x,
+                        y: attrs.y,
+                        text: attrs.text,
+                        fontSize: attrs.fontSize,
+                        fontFamily: attrs.fontFamily,
+                        fontStyle: attrs.fontStyle,
+                        fill: attrs.fill,
+                        width: attrs.width,
+                        height: attrs.height,
+                        wrap: properties?.multiline ? 'word' : 'none',
+                        lineHeight: 1.2
+                    });
+                    break;
+
+                default:
+                    console.warn(`Unknown element type: ${type}`);
+                    return null;
+            }
+
+            // Set element ID
+            if (elementData.id) {
+                element.id(elementData.id);
+            }
+
+            return element;
+        }
+
+        // Process all elements
+        jsonData.template_data.elements.forEach(elementData => {
+            const element = createElement(elementData);
+            if (!element) return;
+
+            // Add to appropriate layer
+            const layerType = elementData.properties?.layer;
+            switch (layerType) {
+                case 'background':
+                    backgroundLayer.add(element);
+                    break;
+                case 'decoration':
+                    decorationLayer.add(element);
+                    break;
+                default:
+                    contentLayer.add(element);
+                    break;
+            }
+
+            // Add click handler for editable elements
+            if (elementData.properties?.editable) {
+                element.on('click', function() {
+                    console.log(`Clicked editable element: ${elementData.id}`);
+                    // Here you could implement editing functionality
+                });
+                element.on('mouseenter', function() {
+                    document.body.style.cursor = 'pointer';
+                });
+                element.on('mouseleave', function() {
+                    document.body.style.cursor = 'default';
+                });
+            }
+        });
+
+        // Add layers to stage in correct order
+        stage.add(backgroundLayer);
+        stage.add(decorationLayer);
+        stage.add(contentLayer);
+
+        // Draw the stage
+        stage.draw();
+
+        // Export functionality
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const json = stage.toJSON();
+            const jsonOutput = document.getElementById('jsonOutput');
+            const jsonTextarea = document.getElementById('jsonTextarea');
+            
+            // Pretty print the JSON
+            const prettyJson = JSON.stringify(JSON.parse(json), null, 2);
+            jsonTextarea.value = prettyJson;
+            
+            // Show the output section
+            jsonOutput.style.display = 'block';
+            
+            console.log('Canvas exported as JSON:', prettyJson);
+        });
+
+        // Copy to clipboard function
+        function copyToClipboard() {
+            const jsonTextarea = document.getElementById('jsonTextarea');
+            jsonTextarea.select();
+            document.execCommand('copy');
+            alert('JSON copied to clipboard!');
+        }
+
+        // Download JSON file function
+        function downloadJSON() {
+            const jsonTextarea = document.getElementById('jsonTextarea');
+            const content = jsonTextarea.value;
+            
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'canvas_export.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        console.log('CV template rendered successfully with Konva.js');
+    </script>
+</body>
+</html>

@@ -1,0 +1,703 @@
+{% extends "base.html" %} {% block title %}Danh sách CV - Smart CV{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+  <!-- Header Section -->
+  <div class="bg-white/80 backdrop-blur-sm border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-900 mb-3">
+            Quản lý CV của bạn
+          </h1>
+          <p class="text-xl text-gray-600">
+            Theo dõi hiệu quả và tối ưu hóa CV để có cơ hội việc làm tốt nhất
+          </p>
+        </div>
+        <div class="relative">
+          <button
+            id="createCVButton"
+            onclick="toggleDropdown('dropdownCreateCVList')"
+            class="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+          >
+            <i class="fas fa-plus mr-3"></i>Tạo CV mới
+            <i class="fas fa-chevron-down ml-2"></i>
+          </button>
+          <div
+            id="dropdownCreateCVList"
+            class="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 hidden"
+          >
+            <div class="py-2">
+              <a
+                href="{{ url_for('cv.create_cv') }}"
+                class="block px-6 py-4 text-gray-700 hover:bg-blue-50 transition-colors duration-200"
+              >
+                <div class="flex items-center">
+                  <div class="p-3 bg-sky-100 rounded-xl mr-4">
+                    <i class="fas fa-wpforms text-sky-600 text-lg"></i>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Form Editor</p>
+                    <p class="text-sm text-gray-500">Tạo CV với form truyền thống</p>
+                  </div>
+                </div>
+              </a>
+              <a
+                href="{{ url_for('cv.canvas_editor') }}"
+                class="block px-6 py-4 text-gray-700 hover:bg-purple-50 transition-colors duration-200"
+              >
+                <div class="flex items-center">
+                  <div class="p-3 bg-purple-100 rounded-xl mr-4">
+                    <i class="fas fa-magic text-purple-600 text-lg"></i>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-gray-800">Canvas Editor</p>
+                    <p class="text-sm text-gray-500">Thiết kế CV tự do, kéo thả</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div
+        class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      >
+        <div class="flex items-center">
+          <div class="p-4 bg-blue-100 rounded-2xl">
+            <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
+          </div>
+          <div class="ml-6">
+            <p class="text-3xl font-bold text-gray-900 mb-1">
+              {{ stats.total_cvs or 0 }}
+            </p>
+            <p class="text-sm text-gray-600">Tổng CV</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      >
+        <div class="flex items-center">
+          <div class="p-4 bg-green-100 rounded-2xl">
+            <i class="fas fa-eye text-green-600 text-2xl"></i>
+          </div>
+          <div class="ml-6">
+            <p class="text-3xl font-bold text-gray-900 mb-1">
+              {{ stats.total_views or 0 }}
+            </p>
+            <p class="text-sm text-gray-600">Lượt xem</p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
+      >
+        <div class="flex items-center">
+          <div class="p-4 bg-amber-100 rounded-2xl">
+            <i class="fas fa-download text-amber-600 text-2xl"></i>
+          </div>
+          <div class="ml-6">
+            <p class="text-3xl font-bold text-gray-900 mb-1">
+              {{ stats.total_downloads or 0 }}
+            </p>
+            <p class="text-sm text-gray-600">Tải xuống</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div
+      class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 mb-10"
+    >
+      <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between gap-6"
+      >
+        <div class="flex-1 max-w-md">
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+            >
+              <i class="fas fa-search text-gray-400 text-lg"></i>
+            </div>
+            <input
+              type="text"
+              id="cvSearchInput"
+              placeholder="Tìm kiếm CV theo tên, vị trí, người tạo..."
+              class="w-full pl-12 pr-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 bg-gray-50 focus:bg-white transition-all duration-300"
+            />
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <select
+            id="templateFilter"
+            class="px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all duration-300"
+          >
+            <option value="">Tất cả template</option>
+            {% for template in available_templates %}
+            <option value="{{ template.id }}" {% if current_template == template.id %}selected{% endif %}>
+              {{ template.name }}
+            </option>
+            {% endfor %}
+            
+            <!-- Fallback options if no templates in database -->
+            {% if not available_templates %}
+            <option value="modern" {% if current_template == 'modern' %}selected{% endif %}>Modern</option>
+            <option value="professional" {% if current_template == 'professional' %}selected{% endif %}>Professional</option>
+            <option value="creative" {% if current_template == 'creative' %}selected{% endif %}>Creative</option>
+            <option value="minimal" {% if current_template == 'minimal' %}selected{% endif %}>Minimal</option>
+            {% endif %}
+          </select>
+          <select
+            id="editorTypeFilter"
+            class="px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all duration-300"
+          >
+            <option value="">Tất cả trình soạn thảo</option>
+            <option value="form">Form Editor</option>
+            <option value="canvas">Canvas Editor</option>
+          </select>
+          <select
+            id="sortFilter"
+            class="px-6 py-4 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all duration-300"
+          >
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+            <option value="name">Tên A-Z</option>
+            <option value="views">Lượt xem</option>
+            <option value="downloads">Lượt tải</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- CV Grid -->
+    <div
+      id="cvCardsContainer"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+    >
+      {% for cv in cvs %}
+      <!-- CV Card -->
+      <div
+        class="cv-card group bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+        data-cv-id="{{ cv.id }}"
+        data-cv-title="{{ cv.title or cv.name or '' }}"
+        data-cv-full-name="{{ cv.full_name or '' }}"
+        data-cv-position="{{ cv.position or '' }}"
+        data-cv-template="{{ cv.template or '' }}"
+        data-cv-template-id="{{ cv.template_id or '' }}"
+        data-cv-is-canvas-editor="{{ cv.is_canvas_editor|lower }}"
+        data-cv-views="{{ cv.views or 0 }}"
+        data-cv-downloads="{{ cv.downloads or 0 }}"
+        data-cv-updated="{{ cv.updated_at }}"
+        data-cv-created="{{ cv.created_at }}"
+      >
+        <div class="aspect-[4/3] relative overflow-hidden">
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-8 text-whiteabsolute inset-0 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-8 text-white"
+          >
+            <div class="space-y-4">
+              <div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl mb-3"></div>
+                {% if cv.is_canvas_editor %}
+                <div class="font-bold text-xl mb-1">
+                  {{ cv.title or cv.name or 'CV không tên' }}
+                </div>
+                <div class="text-blue-100 text-sm mb-3">
+                  Thiết kế Canvas
+                </div>
+                {% else %}
+                <div class="font-bold text-xl mb-1">
+                  {{ cv.full_name or 'Chưa có tên' }}
+                </div>
+                <div class="text-blue-100 text-sm mb-3">
+                  {{ cv.position or 'Chưa có vị trí' }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Hover Actions -->
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-8"
+          >
+            <div class="flex gap-3">
+              <a
+                href="{{ url_for('cv.cv_preview', cv_id=cv.id) }}"
+                class="bg-white/90 backdrop-blur-sm text-gray-800 px-6 py-3 rounded-xl text-sm font-semibold hover:bg-white transition-all duration-200 shadow-lg"
+              >
+                <i class="fas fa-eye mr-2"></i>Xem
+              </a>
+              <a
+                href="{{ url_for('cv.canvas_editor', cv_id=cv.id) if cv.is_canvas_editor else url_for('cv.edit_cv_form', cv_id=cv.id) }}"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 shadow-lg"
+              >
+                <i class="fas fa-edit mr-2"></i>Chỉnh sửa
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- Actions Dropdown -->
+        <div class="p-8 relative">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900">
+              {{ cv.name or cv.title }}
+            </h3>
+            <div class="relative">
+              <button
+                class="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200"
+                onclick="toggleDropdown('dropdown{{ cv.id }}')"
+              >
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+              <div
+                id="dropdown{{ cv.id }}"
+                class="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 hidden"
+                style="transform: translateY(0)"
+              >
+                <div class="py-2">
+                  <a
+                    href="{{ url_for('cv.canvas_editor', cv_id=cv.id) if cv.is_canvas_editor else url_for('cv.edit_cv_form', cv_id=cv.id) }}"
+                    class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <i class="fas fa-edit mr-3"></i>Chỉnh sửa
+                  </a>
+                  <a
+                    href="{{ url_for('cv.duplicate_cv', cv_id=cv.id) }}"
+                    class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <i class="fas fa-copy mr-3"></i>Sao chép
+                  </a>
+                  <a
+                    href="{{ url_for('cv.download_cv', cv_id=cv.id) }}"
+                    class="block px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <i class="fas fa-download mr-3"></i>Tải xuống
+                  </a>
+                  <div class="border-t border-gray-100 my-2"></div>
+                  <button
+                    class="block w-full text-left px-6 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                    onclick="deleteCV({{ cv.id }}, '{{ cv.name or cv.title }}')"
+                  >
+                    <i class="fas fa-trash mr-3"></i>Xóa
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center text-sm text-gray-500 mb-6">
+            <i class="fas fa-palette mr-2"></i>
+            <span
+              >{{ cv.template or 'Template mặc định' }} • Cập nhật {{
+              cv.updated_at }}</span
+            >
+            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold
+              {% if cv.is_canvas_editor %}
+                bg-purple-100 text-purple-700
+              {% else %}
+                bg-sky-100 text-sky-700
+              {% endif %}
+            ">
+              {% if cv.is_canvas_editor %}
+                <i class="fas fa-magic mr-1"></i>Canvas Editor
+              {% else %}
+                <i class="fa-regular fa-file-lines mr-1"></i>Form Editor
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-6 text-sm text-gray-500">
+              <span class="flex items-center">
+                <i class="fas fa-eye mr-2"></i>{{ cv.views or 0 }} lượt xem
+              </span>
+              <span class="flex items-center">
+                <i class="fas fa-download mr-2"></i>{{ cv.downloads or 0 }} tải
+                xuống
+              </span>
+            </div>
+            <div class="flex space-x-2">
+              <a
+                href="{{ url_for('cv.cv_preview', cv_id=cv.id) }}"
+                class="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+              >
+                <i class="fas fa-eye"></i>
+              </a>
+              <a
+                href="{{ url_for('cv.canvas_editor', cv_id=cv.id) if cv.is_canvas_editor else url_for('cv.edit_cv_form', cv_id=cv.id) }}"
+                class="p-3 text-gray-600 hover:bg-gray-50 rounded-xl transition-all duration-200"
+              >
+                <i class="fas fa-edit"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Create New CV Card -->
+      <div
+        class="create-cv-card group bg-white rounded-3xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-500 hover:-translate-y-2"
+      >
+        <div class="p-12 text-center">
+          <div
+            class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-all duration-300"
+          >
+            <i class="fas fa-plus text-blue-600 text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Tạo CV mới</h3>
+          <p class="text-gray-500 mb-8 leading-relaxed">
+            Bắt đầu tạo CV chuyên nghiệp với các template hiện đại
+          </p>
+          <div class="space-y-3 sm:space-y-0 sm:flex sm:justify-center sm:space-x-3">
+            <a
+              href="{{ url_for('cv.create_cv') }}"
+              class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-sky-600 text-white rounded-xl font-semibold hover:bg-sky-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              <i class="fa-regular fa-file-lines mr-2"></i>Form Editor
+            </a>
+            <a
+              href="{{ url_for('cv.canvas_editor') }}"
+              class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              <i class="fas fa-magic mr-2"></i>Canvas Editor
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results Message -->
+    <div id="noResults" class="text-center py-16 hidden">
+      <div class="max-w-md mx-auto">
+        <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          Không tìm thấy CV
+        </h3>
+        <p class="text-gray-600 mb-6">
+          Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc khác
+        </p>
+        <button
+          onclick="clearFilters()"
+          class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+        >
+          <i class="fas fa-refresh mr-2"></i>Xóa bộ lọc
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Delete Modal -->
+<div
+  id="deleteModal"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50"
+>
+  <div class="relative top-20 mx-auto p-5 w-96">
+    <div class="bg-white rounded-3xl shadow-2xl">
+      <div class="p-8 text-center">
+        <div
+          class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
+          <i class="fas fa-exclamation-triangle text-red-600 text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">Xác nhận xóa CV</h3>
+        <p class="text-gray-600 mb-8 leading-relaxed">
+          Bạn có chắc chắn muốn xóa CV này? Hành động này không thể hoàn tác.
+        </p>
+        <div class="flex space-x-4">
+          <button
+            id="cancelDelete"
+            class="flex-1 px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl font-semibold hover:bg-gray-200 transition-all duration-200"
+          >
+            Hủy
+          </button>
+          <button
+            id="confirmDelete"
+            class="flex-1 px-6 py-4 bg-red-600 text-white rounded-2xl font-semibold hover:bg-red-700 transition-all duration-200"
+          >
+            Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script>
+  // CV Delete functionality
+  let cvToDelete = null;
+  let cvTitleToDelete = '';
+
+  function deleteCV(cvId, cvTitle) {
+    cvToDelete = cvId;
+    cvTitleToDelete = cvTitle;
+    
+    // Update modal content with CV title
+    const modalTitle = document.querySelector('#deleteModal h3');
+    const modalDescription = document.querySelector('#deleteModal p');
+    
+    if (modalTitle) {
+      modalTitle.textContent = `Xác nhận xóa CV`;
+    }
+    if (modalDescription) {
+      modalDescription.textContent = `Bạn có chắc chắn muốn xóa CV "${cvTitle}"? Hành động này không thể hoàn tác.`;
+    }
+    
+    // Show modal
+    document.getElementById('deleteModal').classList.remove('hidden');
+  }
+
+  // Handle delete confirmation
+  document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (!cvToDelete) return;
+    
+    // Show loading state
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xóa...';
+    
+    // Send delete request - Updated URL to match backend route
+    fetch(`/cv/${cvToDelete}/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Hide modal
+        document.getElementById('deleteModal').classList.add('hidden');
+        
+        // Remove CV card from DOM with animation
+        const cvCard = document.querySelector(`[data-cv-id="${cvToDelete}"]`);
+        if (cvCard) {
+          cvCard.style.transform = 'scale(0.8)';
+          cvCard.style.opacity = '0';
+          setTimeout(() => {
+            cvCard.remove();
+            // Update stats after removal
+            updateStatsAfterDelete();
+          }, 300);
+        }
+        
+        // Show success message with CV title from response
+        showNotification(data.message || `CV "${cvTitleToDelete}" đã được xóa thành công!`, 'success');
+      } else {
+        showNotification(data.error || 'Có lỗi xảy ra khi xóa CV.', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Có lỗi xảy ra khi xóa CV.', 'error');
+    })
+    .finally(() => {
+      // Reset button state
+      const confirmBtn = document.getElementById('confirmDelete');
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = 'Xóa';
+      
+      // Reset variables
+      cvToDelete = null;
+      cvTitleToDelete = '';
+    });
+  });
+
+  // Handle cancel delete
+  document.getElementById('cancelDelete').addEventListener('click', function() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    cvToDelete = null;
+    cvTitleToDelete = '';
+  });
+
+  // Close modal when clicking outside
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.add('hidden');
+      cvToDelete = null;
+      cvTitleToDelete = '';
+    }
+  });
+
+  // Update stats after deleting a CV
+  function updateStatsAfterDelete() {
+    const remainingCards = document.querySelectorAll('.cv-card').length;
+    const totalCVsElement = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-3 .text-3xl');
+    if (totalCVsElement) {
+      totalCVsElement.textContent = remainingCards;
+    }
+    
+    // Show no results message if no CVs left
+    if (remainingCards === 0) {
+      document.getElementById('noResults').classList.remove('hidden');
+      // Hide create card when showing no results
+      const createCard = document.querySelector('.create-cv-card');
+      if (createCard) {
+        createCard.style.display = 'none';
+      }
+    }
+  }
+
+  // Enhanced notification function
+  function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-2xl shadow-lg max-w-sm transform transition-all duration-300 translate-x-full ${
+      type === 'success' ? 'bg-green-600 text-white' : 
+      type === 'error' ? 'bg-red-600 text-white' : 
+      'bg-blue-600 text-white'
+    }`;
+    
+    notification.innerHTML = `
+      <div class="flex items-center">
+        <i class="fas ${
+          type === 'success' ? 'fa-check-circle' : 
+          type === 'error' ? 'fa-exclamation-circle' : 
+          'fa-info-circle'
+        } mr-3"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white/80 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 300);
+    }, 5000);
+  }
+
+  function clearFilters() {
+    document.getElementById("cvSearchInput").value = "";
+    document.getElementById("templateFilter").value = "";
+    document.getElementById("editorTypeFilter").value = "";
+    document.getElementById("sortFilter").value = "newest";
+
+    // Trigger search to show all CVs and the create card
+    const searchFilter = document.querySelector("#cvSearchInput");
+    if (searchFilter) {
+      searchFilter.dispatchEvent(new Event("input"));
+    }
+  }
+
+  // Search and filter functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('cvSearchInput');
+    const templateFilter = document.getElementById('templateFilter');
+    const editorTypeFilter = document.getElementById('editorTypeFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    
+    function filterAndSortCVs() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const templateValue = templateFilter.value.toLowerCase();
+      const editorTypeValue = editorTypeFilter.value.toLowerCase();
+      const sortValue = sortFilter.value;
+      
+      const cvCards = Array.from(document.querySelectorAll('.cv-card'));
+      const createCard = document.querySelector('.create-cv-card');
+      
+      let visibleCount = 0;
+      
+      // Filter cards
+      cvCards.forEach(card => {
+        const title = card.getAttribute('data-cv-title').toLowerCase();
+        const fullName = card.getAttribute('data-cv-full-name').toLowerCase();
+        const position = card.getAttribute('data-cv-position').toLowerCase();
+        const template = card.getAttribute('data-cv-template').toLowerCase();
+        const templateId = card.getAttribute('data-cv-template-id').toLowerCase();
+        const isCanvasEditor = card.getAttribute('data-cv-is-canvas-editor') === 'true';
+        
+        const matchesSearch = !searchTerm || 
+          title.includes(searchTerm) || 
+          fullName.includes(searchTerm) || 
+          position.includes(searchTerm);
+          
+        const matchesTemplate = !templateValue || 
+          template.includes(templateValue) || 
+          templateId.includes(templateValue);
+          
+        const matchesEditorType = !editorTypeValue || 
+          (editorTypeValue === 'canvas' && isCanvasEditor) ||
+          (editorTypeValue === 'form' && !isCanvasEditor);
+        
+        if (matchesSearch && matchesTemplate && matchesEditorType) {
+          card.style.display = 'block';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      
+      // Sort visible cards
+      if (sortValue && visibleCount > 0) {
+        const visibleCards = cvCards.filter(card => card.style.display !== 'none');
+        const container = document.getElementById('cvCardsContainer');
+        
+        visibleCards.sort((a, b) => {
+          switch (sortValue) {
+            case 'oldest':
+              return new Date(a.getAttribute('data-cv-created')) - new Date(b.getAttribute('data-cv-created'));
+            case 'name':
+              return a.getAttribute('data-cv-title').localeCompare(b.getAttribute('data-cv-title'));
+            case 'views':
+              return parseInt(b.getAttribute('data-cv-views')) - parseInt(a.getAttribute('data-cv-views'));
+            case 'downloads':
+              return parseInt(b.getAttribute('data-cv-downloads')) - parseInt(a.getAttribute('data-cv-downloads'));
+            default: // newest
+              return new Date(b.getAttribute('data-cv-updated')) - new Date(a.getAttribute('data-cv-updated'));
+          }
+        });
+        
+        // Reorder DOM elements
+        visibleCards.forEach(card => {
+          container.appendChild(card);
+        });
+        
+        // Keep create card at the end
+        if (createCard) {
+          container.appendChild(createCard);
+        }
+      }
+      
+      // Show/hide no results message
+      if (visibleCount === 0 && searchTerm) {
+        document.getElementById('noResults').classList.remove('hidden');
+        if (createCard) createCard.style.display = 'none';
+      } else {
+        document.getElementById('noResults').classList.add('hidden');
+        if (createCard) createCard.style.display = 'block';
+      }
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', filterAndSortCVs);
+    templateFilter.addEventListener('change', filterAndSortCVs);
+    editorTypeFilter.addEventListener('change', filterAndSortCVs);
+    sortFilter.addEventListener('change', filterAndSortCVs);
+  });
+</script>
+{% endblock %}
