@@ -1,14 +1,14 @@
 import os
-from flask import Flask
-from flask_migrate import Migrate
-from flask_login import LoginManager
+
 from dotenv import load_dotenv
+from flask import Flask
+from flask_login import LoginManager
+from flask_migrate import Migrate
+
+from db import db
 
 # Load environment variables
 load_dotenv()
-
-# Import database instance
-from db import db
 
 # Initialize other extensions
 migrate = Migrate()
@@ -39,9 +39,10 @@ def create_app():
         return User.query.get(int(user_id))
     
     # Register blueprints
+    from views.cv import cv_bp
     from views.main import main_bp
     from views.user import user_bp
-    from views.cv import cv_bp
+    
     app.register_blueprint(main_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(cv_bp)
@@ -49,9 +50,9 @@ def create_app():
     # Create database tables
     with app.app_context():
         # Import models để tạo tables
-        from models.user import User
         from models.cv import CV
         from models.cv_template import CVTemplate
+        from models.user import User
         
         db.create_all()
         
